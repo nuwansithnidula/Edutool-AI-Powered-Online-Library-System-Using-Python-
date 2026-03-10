@@ -1,0 +1,19 @@
+# Web Framework & Extensions
+Flask
+Flask-Cors
+Flask-Login
+Flask-Mail
+Werkzeug
+
+# Database
+pymongo
+
+# AI Search & Machine Learning
+sentence-transformers
+torch
+torchvision
+torchaudio
+
+# Image Processing & OCR
+pytesseract
+Pillow

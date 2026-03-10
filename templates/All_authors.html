@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="container" style="min-height: 80vh; padding-top: 100px;">
+    
+    <div class="section-header" style="text-align: center; margin-bottom: 60px; flex-direction: column;">
+        <h1 style="color: white; font-size: 3rem; margin-bottom: 10px;">
+            Meet Our <span class="gradient-text">Authors</span>
+        </h1>
+        <div class="line-decoration" style="margin: 15px auto; max-width: 200px;"></div>
+        <p style="color: #a6adc8; font-size: 1.1rem;">Discover the brilliant minds behind your favorite books.</p>
+    </div>
+
+    <div class="authors-circle-grid">
+        {% if authors %}
+            {% for author in authors %}
+            <a href="{{ url_for('author_profile', author_name=author.name) }}" class="author-circle-card">
+                
+                <div class="author-img-wrapper">
+                    {% if author.image and author.image != 'default.png' %}
+                        <img src="/static/uploads/authors/{{ author.image }}" alt="{{ author.name }}">
+                    {% else %}
+                        <img src="https://ui-avatars.com/api/?name={{ author.name }}&background=8b5cf6&color=fff&size=200" alt="{{ author.name }}">
+                    {% endif %}
+                    
+                    <div class="author-name-overlay">
+                        <span>{{ author.name }}</span>
+                    </div>
+                </div>
+                
+            </a>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state-msg" style="width: 100%;">
+                <h3>No authors found yet.</h3>
+            </div>
+        {% endif %}
+    </div>
+
+</main>
+{% endblock %}

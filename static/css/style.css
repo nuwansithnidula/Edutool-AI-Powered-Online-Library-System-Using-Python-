@@ -1,0 +1,2844 @@
+/* --- VARIABLES --- */
+:root {
+    /* --- DARK THEME (DEFAULT) --- */
+    --bg-body: #050505;
+    --text-main: #ffffff;
+    --text-muted: #94a3b8;
+    
+    /* Neon Accents */
+    --accent-primary: #8b5cf6; /* Violet */
+    --accent-secondary: #06b6d4; /* Cyan */
+    --accent-glow: rgba(139, 92, 246, 0.5);
+    
+    /* Glass Effect Variables */
+    --header-bg: rgba(20, 20, 30, 0.6);
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+    
+    --blob-opacity: 0.6;
+    --blob-filter: blur(80px);
+    
+    --font-main: 'Outfit', sans-serif;
+    --radius-pill: 50px;
+    --radius-card: 20px;
+}
+
+/* --- LIGHT THEME (OVERRIDE) --- */
+[data-theme="light"] {
+    --bg-body: #f0f4f8; /* Soft Ice White */
+    --text-main: #1e293b; /* Slate 800 */
+    --text-muted: #64748b; /* Slate 500 */
+    
+    /* Accents remain similar but adjusted for white bg visibility if needed */
+    --accent-primary: #7c3aed; 
+    --accent-secondary: #0891b2;
+    --accent-glow: rgba(124, 58, 237, 0.3);
+
+    /* Glass Effect - "Frosted Ice" */
+    --header-bg: rgba(255, 255, 255, 0.75);
+    --glass-bg: rgba(255, 255, 255, 0.65);
+    --glass-border: rgba(255, 255, 255, 0.8); /* White edges */
+    --glass-shadow: 0 10px 30px -10px rgba(100, 116, 139, 0.15); /* Softer shadow */
+    
+    --blob-opacity: 0.4; /* Softer blobs */
+}
+
+/* --- RESET & GLOBAL --- */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    font-family: var(--font-main);
+    line-height: 1.6;
+    overflow-x: hidden;
+    position: relative;
+    transition: background-color 0.4s ease, color 0.4s ease; /* Smooth Theme Switch */
+}
+
+a { text-decoration: none; color: var(--text-muted); transition: 0.3s; }
+a:hover { color: var(--text-main); }
+ul { list-style: none; }
+
+/* --- AMBIENT BACKGROUND ANIMATION --- */
+.ambient-light {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: -1;
+    overflow: hidden;
+    /* Optional: Change gradient for light mode via JS or variables if strictly needed, 
+       but transparency works well over the body color */
+}
+
+.blob {
+    position: absolute;
+    filter: var(--blob-filter);
+    opacity: var(--blob-opacity);
+    animation: float 20s infinite alternate;
+    transition: opacity 0.5s ease;
+}
+
+.blob-1 {
+    width: 500px; height: 500px;
+    background: var(--accent-primary);
+    top: -100px; left: -100px;
+    animation-delay: 0s;
+}
+
+.blob-2 {
+    width: 400px; height: 400px;
+    background: var(--accent-secondary);
+    bottom: -50px; right: -50px;
+    animation-delay: -5s;
+}
+
+.blob-3 {
+    width: 300px; height: 300px;
+    background: #ec4899;
+    top: 40%; left: 30%;
+    animation-duration: 25s;
+    opacity: calc(var(--blob-opacity) * 0.6);
+}
+
+@keyframes float {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    100% { transform: translate(50px, 50px) rotate(20deg); }
+}
+
+/* --- HEADER --- */
+.glass-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 5%;
+    position: sticky;
+    top: 20px;
+    margin: 0 20px;
+    z-index: 100;
+    
+    background: var(--header-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-pill);
+    box-shadow: var(--glass-shadow);
+    transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-circle {
+    width: 35px; height: 35px;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem;
+    color: white; /* Always white icon */
+}
+
+.logo-text { font-weight: 700; font-size: 1.2rem; letter-spacing: 0.5px; }
+
+/* Navigation */
+.glass-nav ul { display: flex; gap: 30px; }
+.glass-nav a { 
+    font-weight: 500; 
+    position: relative;
+    padding: 5px 0;
+}
+.glass-nav a.active::after, .glass-nav a:hover::after {
+    content: '';
+    position: absolute;
+    width: 100%; height: 2px;
+    bottom: 0; left: 0;
+    background: var(--accent-secondary);
+    box-shadow: 0 0 10px var(--accent-secondary);
+}
+
+/* Header Actions & Toggle */
+.header-actions { display: flex; align-items: center; gap: 20px; }
+.auth-buttons { display: flex; gap: 12px; }
+
+/* Theme Toggle Button */
+.theme-toggle {
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px;
+    transition: transform 0.3s, color 0.3s;
+}
+.theme-toggle:hover {
+    color: var(--accent-secondary);
+    transform: rotate(15deg);
+}
+
+.btn-glass {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--text-main);
+    padding: 8px 20px;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    font-family: var(--font-main);
+    transition: 0.3s;
+}
+.btn-glass:hover { 
+    background: rgba(125, 125, 125, 0.1); 
+    border-color: var(--accent-secondary);
+}
+
+.btn-neon {
+    background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+    border: none;
+    color: white;
+    padding: 8px 24px;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    font-weight: 600;
+    box-shadow: 0 0 15px var(--accent-glow);
+    transition: 0.3s;
+}
+.btn-neon:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px var(--accent-primary);
+}
+
+/* --- HERO SECTION --- */
+.hero {
+    text-align: center;
+    padding: 100px 20px 60px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.hero h1 {
+    font-size: 4rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 30px;
+    letter-spacing: -1px;
+    color: var(--text-main);
+}
+
+.gradient-text {
+    background: linear-gradient(to right, #c084fc, #67e8f9);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.3));
+}
+
+.hero-desc {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    margin-bottom: 40px;
+    max-width: 600px;
+    margin-left: auto; margin-right: auto;
+}
+
+/* Glass Search Bar */
+.search-wrapper {
+    display: flex;
+    align-items: center;
+    max-width: 650px;
+    margin: 0 auto 40px;
+    padding: 8px;
+    border-radius: 60px;
+    position: relative;
+    
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--glass-shadow);
+    transition: 0.3s;
+}
+
+.search-wrapper:focus-within {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
+}
+
+.search-wrapper input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    font-size: 1rem;
+    padding: 10px 15px;
+    outline: none;
+    font-family: var(--font-main);
+}
+
+.icon-left {
+    padding-left: 20px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: 0.3s;
+}
+.icon-left:hover { color: var(--accent-secondary); }
+
+.search-btn {
+    width: 45px; height: 45px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent-primary);
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.search-btn:hover { background: var(--accent-secondary); }
+
+.btn-hero { font-size: 1.1rem; padding: 14px 40px; }
+
+/* --- CTA SECTION --- */
+.cta-section {padding: 40px 8%; display: flex; justify-content: center;}
+
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-card);
+    transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: var(--glass-shadow);
+}
+
+.cta-box {
+    width: 100%;
+    padding: 50px; text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.glow-border::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent-secondary), transparent);
+    opacity: 0.7;
+}
+
+/* --- SECTIONS --- */
+.section-container { padding: 60px 8%; }
+
+.section-header {
+    display: flex; align-items: center; gap: 20px;
+    margin-bottom: 40px;
+}
+.section-header h3 { font-size: 1.8rem; font-weight: 700; white-space: nowrap; color: var(--text-main); }
+.line-decoration {
+    height: 1px; width: 100%;
+    background: linear-gradient(90deg, var(--glass-border), transparent);
+}
+
+/* Categories */
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+}
+
+.cat-card {
+    height: 140px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 15px;
+    cursor: pointer;
+    color: var(--text-main);
+}
+.cat-card i { font-size: 2rem; color: var(--accent-secondary); transition: 0.3s; }
+.cat-card:hover {
+    transform: translateY(-10px);
+    border-color: var(--accent-primary);
+    background: var(--glass-bg); /* Ensuring consistency */
+}
+.cat-card:hover i { transform: scale(1.2); color: var(--accent-primary); }
+
+/* Books Grid */
+.books-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);;
+    gap: 30px;
+    margin-bottom: 50px;
+}
+
+.book-card {
+    padding: 15px;
+    padding-bottom: 20px;
+    display: flex; flex-direction: column;
+}
+
+.book-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    border-color: var(--accent-primary);
+}
+
+.book-cover-container {
+    width: 100%; height: 320px;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 15px;
+}
+.book-cover-img { width: 100%; height: 100%; object-fit: cover; }
+.overlay {
+    position: absolute; top:0; left:0; width:100%; height:100%;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    opacity: 0; transition: 0.3s;
+}
+.book-card:hover .overlay { opacity: 1; }
+
+.book-info { margin-bottom: 15px; }
+.book-title { font-size: 1.2rem; color: var(--text-main); margin-bottom: 5px; }
+.book-author { color: var(--text-muted); font-size: 0.9rem; }
+.author-link { color: var(--accent-secondary); }
+
+.book-actions {
+    display: flex; justify-content: flex-end; gap: 10px; margin-top: auto;
+}
+
+.action-btn {
+    width: 40px; height: 40px;
+    border-radius: 50%; border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    color: var(--text-muted);
+    cursor: pointer; transition: 0.3s;
+    display: flex; align-items: center; justify-content: center;
+}
+.action-btn:hover {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: white;
+    box-shadow: 0 0 15px var(--accent-primary);
+}
+
+.wishlist-btn.active { color: #f43f5e; border-color: #f43f5e; background: rgba(244, 63, 94, 0.1); }
+.wishlist-btn.active:hover { background: #f43f5e; color: white; }
+
+/* Show More Button */
+.btn-center { text-align: center; }
+.btn-glass-pill {
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    color: var(--text-main); 
+    padding: 12px 50px;
+    border-radius: var(--radius-pill);
+    cursor: pointer; transition: 0.3s;
+}
+.btn-glass-pill:hover {
+    background: var(--text-main); color: var(--bg-body);
+    box-shadow: 0 0 20px rgba(125,125,125,0.4);
+}
+
+/* --- FOOTER --- */
+footer {
+    border-top: 1px solid var(--glass-border);
+    background: var(--header-bg);
+    padding: 60px 20px;
+    text-align: center;
+    backdrop-filter: blur(20px);
+}
+
+.social-icons {
+    display: flex; justify-content: center; gap: 20px; margin: 25px 0;
+}
+.social-circle {
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: 0.3s;
+    color: var(--text-main);
+}
+.social-circle:hover {
+    background: var(--accent-secondary);
+    transform: rotate(15deg);
+    box-shadow: 0 0 20px var(--accent-secondary);
+    color: white;
+}
+
+/* profile */
+
+/* ==================== USER MENU & DROPDOWN STYLES (New) ==================== */
+
+/* Container for the profile image and the dropdown menu */
+.user-menu-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* The circular profile image */
+.profile-trigger {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.3s ease;
+}
+
+.profile-trigger:hover {
+    border-color: var(--accent-primary);
+}
+
+/* The Dropdown Menu Container - Initially hidden */
+.profile-dropdown {
+    position: absolute;
+    top: 60px; /* Position below header */
+    right: 0;
+    width: 220px;
+    background: var(--header-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: var(--glass-shadow);
+    border-radius: 8px;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+/* Class added via JS to show menu */
+.profile-dropdown.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Dropdown Header (Name and Username) */
+.dropdown-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--text-muted);
+}
+
+.user-name {
+    display: block;
+    font-weight: 700;
+    color: var(--text-main);
+    font-size: 1rem;
+}
+
+.user-handle {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-muted); /* Using a grey that matches typical secondary text */
+    margin-top: 2px;
+}
+
+/* Dropdown Link Lists */
+.dropdown-links {
+    list-style: none;
+    padding: 0.5rem 0;
+}
+
+.dropdown-links li a {
+    display: flex;
+    align-items: center;
+    padding: 0.7rem 1rem;
+    text-decoration: none;
+    color: var(--text-main);
+    font-size: 0.95rem;
+    transition: background-color 0.2s;
+}
+
+/* Icons in dropdown */
+.dropdown-links li a i,
+.logout-link i {
+    margin-right: 12px;
+    width: 20px; /* Ensures icons align neatly */
+    text-align: center;
+    color: var(--text-main);
+}
+
+.dropdown-links li a:hover {
+    background: var(--header-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: var(--primary-color);
+}
+
+/* Divider Line */
+.dropdown-divider {
+    height: 1px;
+    background-color: var(--text-muted);
+    margin: 0.2rem 0;
+}
+
+/* Logout Section */
+.dropdown-footer {
+    padding: 0.5rem 0;
+}
+
+.logout-link {
+    display: flex;
+    align-items: center;
+    padding: 0.7rem 1rem;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: background-color 0.2s;
+}
+
+.dropdown-footer .logout{
+    color: #e74c3c;
+}
+
+.logout-link:hover {
+    background: var(--header-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+.logout-link i{
+    color: #e74c3c;
+}
+
+
+/* --- RESPONSIVE NAVIGATION & FOOTER --- */
+
+/* --- UTILITY CLASSES --- */
+.mobile-only { display: none; }
+.desktop-only { display: flex; }
+.full-width { width: 100%; display: block; margin-bottom: 10px; }
+.text-center { text-align: center; justify-content: center; }
+
+/* --- HAMBURGER MENU --- */
+.hamburger-menu {
+    display: none; /* Desktop වලදී නොපෙනේ */
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-main);
+    z-index: 102;
+    transition: 0.3s;
+}
+
+/* --- RESPONSIVE MEDIA QUERY (Tablets & Mobile) --- */
+@media (max-width: 900px) {
+
+    /* 1. Utility Switch */
+    .mobile-only { display: block; }
+    .desktop-only { display: none !important; }
+
+    /* 2. Header Adjustment */
+    .glass-header {
+        padding: 15px 20px;
+        margin: 0 10px;
+    }
+
+    .hamburger-menu {
+        display: block; /* Mobile වලදී පෙනේ */
+    }
+
+    /* 3. Mobile Navigation Drawer */
+    .glass-nav {
+        position: absolute;
+        top: 0;
+        left: -110%; /* දකුණු පසින් සැඟවී ඇත */
+        width: 280px; /* මෙනුවේ පළල */
+        height: 100vh;
+        background: var(--header-bg); /* අඳුරු පසුබිම */
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-left: 1px solid var(--glass-border);
+        box-shadow: var(--glass-shadow);
+        border: 1px solid var(--glass-border); 
+
+        
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between; /* ඉහල සහ පහල කොටස් වෙන් කිරීමට */
+        padding: 80px 20px 30px; /* Header එකට ඉඩ තැබීමට Padding */
+        
+        transition: left 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+        z-index: 101;
+    }
+
+    /* Active Class (Javascript මගින් එකතු කරයි) */
+    .glass-nav.active {
+        left: 0;
+    }
+
+    /* 4. Mobile Nav Links Styling */
+    .glass-nav ul {
+        flex-direction: column;
+        gap: 20px;
+        width: 100%;
+    }
+
+    .glass-nav ul li a {
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* 5. Mobile User Profile (TOP Section) */
+    .mobile-user-info {
+        margin-bottom: 30px;
+        animation: fadeIn 0.5s ease 0.2s backwards;
+    }
+
+    .mobile-profile-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+
+    .mobile-profile-img {
+        width: 50px; height: 50px;
+        border-radius: 50%;
+        border: 2px solid var(--accent-secondary);
+        object-fit: cover;
+    }
+
+    .mobile-user-details {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .m-name { font-weight: 700; color: var(--text-main); font-size: 1.1rem; }
+    .m-handle { font-size: 0.85rem; color: var(--text-muted); }
+
+    /* 6. Mobile Auth Buttons (BOTTOM Section) */
+    .mobile-auth-actions {
+        margin-top: auto; /* පහලට තල්ලු කරයි */
+        border-top: 1px solid var(--glass-border);
+        padding-top: 20px;
+    }
+
+    /* 7. Footer Responsive */
+    .footer-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .books-grid {
+        grid-template-columns: repeat(2, 1fr); /* Books 2ක් පෙන්වයි */
+    }
+}
+
+/* Very Small Screens */
+@media (max-width: 480px) {
+    .books-grid {
+        grid-template-columns: 1fr; /* Books එක බැගින් */
+    }
+    
+    .glass-nav {
+        width: 100%; /* පුංචි Phone වල මෙනුව සම්පූර්ණ තිරයම ගනී */
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- HEADER ALIGNMENT --- */
+.glass-header {
+    display: flex;
+    justify-content: space-between; /* Logo වම් කෙලවරට, Actions දකුණු කෙලවරට */
+    align-items: center;
+    /* අනිත් විලාසයන් එලෙසම තබන්න */
+}
+
+/* දකුණු පස ඇති සියල්ල එකට තබා ගැනීම */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Toggle එක සහ Hamburger එක අතර පරතරය */
+}
+
+/* Hamburger Menu Styling Adjustments */
+.hamburger-menu {
+    display: none; /* Desktop */
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-main);
+    margin-left: 10px; /* Toggle එකෙන් පොඩි ඉඩක් */
+}
+
+/* --- RESPONSIVE ADJUSTMENTS --- */
+@media (max-width: 900px) {
+    .glass-header {
+        justify-content: space-between; 
+    }
+
+    .hamburger-menu {
+        display: block; /* Mobile */
+    }
+    
+    .desktop-only {
+        display: none !important;
+    }
+
+    /* Toggle Button එක සහ Hamburger එක ලස්සනට පෙල ගැසීමට */
+    .header-actions {
+        gap: 15px;
+    }
+}
+
+
+
+
+/* --- LOGIN PAGE SPECIFIC STYLES --- */
+
+/* Main container to center the card */
+.login-main {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+/* Two-pane split card matching the provided image layout */
+.login-card {
+    display: flex;
+    width: 100%;
+    max-width: 900px;
+    min-height: 500px;
+    overflow: hidden;
+    padding: 0; /* Removing internal padding to allow panes to touch edges */
+}
+
+/* Left Pane: Light Frost (matches the white side of the image) */
+.login-left {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05); /* Very slight tint for dark mode */
+    padding: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-right: 1px solid var(--glass-border);
+}
+
+[data-theme="light"] .login-left {
+    background: rgba(255, 255, 255, 0.4); /* Brighter for light mode */
+}
+
+.login-left h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    color: var(--text-main);
+}
+
+.login-left p {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    line-height: 1.8;
+}
+
+/* Right Pane: Login Form Area */
+.login-right {
+    flex: 1.2;
+    padding: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.login-icon {
+    width: 60px;
+    height: 60px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 15px; /* Squared rounding matching image icon */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--accent-secondary);
+    margin-bottom: 20px;
+}
+
+.login-right h3 {
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+}
+
+/* Form Styling */
+.login-form {
+    width: 100%;
+    max-width: 320px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    position: relative;
+    text-align: right;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 14px 20px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    color: var(--text-main);
+    font-family: var(--font-main);
+    outline: none;
+    transition: 0.3s;
+}
+
+.form-group input:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 15px var(--accent-glow);
+}
+
+/* --- PASSWORD TOGGLE STYLES --- */
+
+/* Relative wrapper to contain the icon */
+.password-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Positioning the eye icon inside the input */
+.toggle-password-icon {
+    position: absolute;
+    right: 15px;
+    top: 25px; /* Aligned with input center before the forgot link */
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: color 0.3s;
+    z-index: 10;
+}
+
+.toggle-password-icon:hover {
+    color: var(--accent-secondary);
+}
+
+
+
+/* Adjust padding-right on the input so text doesn't overlap the icon */
+#login-password {
+    padding-right: 45px;
+}
+
+.forgot-link {
+    font-size: 0.85rem;
+    color: var(--accent-secondary);
+    display: inline-block;
+    margin-top: 8px;
+}
+
+.btn-full {
+    width: 100%;
+    margin-top: 10px;
+    padding: 14px;
+}
+
+.signup-footer {
+    margin-top: 30px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.signup-footer a {
+    color: var(--accent-secondary);
+    font-weight: 600;
+}
+
+
+/* --- SIGN UP SPECIFIC STYLES --- */
+
+/* Form Row for split inputs (First/Last Name) */
+.form-row {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+/* Adjusting the form width slightly for the wider signup layout */
+.signup-form {
+    max-width: 400px !important;
+}
+
+/* Specific centering for the date placeholder behavior */
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.5); /* Makes icon visible in dark mode */
+}
+
+
+
+
+/* --- NEW PASSWORD PAGE STYLES --- */
+
+/* Ensures the reset form matches the specific dimensions from the provided image */
+#reset-password-form {
+    margin-top: 20px;
+    width: 100%;
+    max-width: 350px;
+}
+
+/* Specific styling for the reset icon to differentiate from login */
+.login-right .fa-key {
+    color: var(--accent-primary);
+    filter: drop-shadow(0 0 10px var(--accent-glow));
+}
+
+/* Ensure the informational text on the left is readable in both modes */
+.login-left h1 {
+    line-height: 1.1;
+    margin-bottom: 25px;
+}
+
+
+
+
+/* --- RESET PASSWORD PAGE STYLES --- */
+
+/* Specific styling for the envelope icon */
+.login-right .fa-envelope {
+    color: var(--accent-secondary); /* Uses the secondary accent (often blue/cyan) */
+    font-size: 1.8rem;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2));
+}
+
+/* Adjustments to match the spacing in Screenshot 225347 */
+#forgot-password-form {
+    margin-top: 25px;
+    width: 100%;
+    max-width: 350px;
+}
+
+#forgot-password-form .btn-full {
+    margin-top: 20px;
+    font-size: 0.95rem; /* Slightly smaller text to fit the long label */
+}
+
+/* Ensure the left-side text has the correct contrast */
+.login-left p {
+    max-width: 90%; /* Prevents text from hitting the border too hard */
+}
+
+
+
+
+
+/* =========================================
+   RESPONSIVE FORMS (Login, Register, OTP, Reset)
+   ========================================= */
+
+/* Tablets & Small Laptops (Max Width: 900px) */
+@media (max-width: 900px) {
+    
+    /* 1. ප්‍රධාන කාඩ් එක Column එකක් ලෙස වෙනස් කිරීම */
+    .login-card {
+        flex-direction: column; /* හරහට තිබූ දේ පහලට හරවයි */
+        max-width: 600px; /* කාඩ් එකේ පළල පාලනය කිරීම */
+        margin: 0 auto;   /* මැදට ගැනීම */
+        min-height: auto; /* උස ස්වයංක්‍රීය කිරීම */
+    }
+
+    /* 2. වම් පස කොටස (Information Section) */
+    .login-left {
+        width: 100%;
+        padding: 40px 30px;
+        border-right: none; /* දකුණු පස ඉර ඉවත් කිරීම */
+        border-bottom: 1px solid var(--glass-border); /* පහලින් ඉරක් එක් කිරීම */
+        text-align: center; /* අකුරු මැදට ගැනීම */
+        flex: none; /* Flex අගයන් ඉවත් කිරීම */
+    }
+
+    .login-left h1 {
+        font-size: 2.2rem; /* මාතෘකාවේ ප්‍රමාණය අඩු කිරීම */
+        margin-bottom: 15px;
+    }
+
+    /* 3. දකුණු පස කොටස (Form Section) */
+    .login-right {
+        width: 100%;
+        padding: 40px 30px;
+        flex: none;
+    }
+}
+
+/* Mobile Phones (Max Width: 480px) */
+@media (max-width: 480px) {
+    
+    .login-main {
+        padding: 20px 10px; /* පිටත පරතරය අඩු කිරීම */
+    }
+
+    /* වම් පස කොටසේ ඉඩ තවත් අඩු කිරීම */
+    .login-left {
+        padding: 30px 20px;
+    }
+
+    .login-left h1 {
+        font-size: 1.8rem;
+    }
+
+    .login-left p {
+        font-size: 0.95rem;
+    }
+
+    /* දකුණු පස Form කොටස */
+    .login-right {
+        padding: 30px 20px;
+    }
+
+    /* Register Page එකේ Input දෙකක් ලඟ ලඟ තිබේ නම් (First Name/Last Name) */
+    .form-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .form-row .form-group {
+        width: 100%;
+    }
+
+    /* Input Field අකුරු ප්‍රමාණය */
+    .form-group input {
+        font-size: 0.95rem;
+        padding: 12px 15px;
+    }
+    
+    /* Login Icon ප්‍රමාණය අඩු කිරීම */
+    .login-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+    }
+}
+
+
+
+/* =========================================
+   CATEGORIES PAGE STYLES
+   (Add this to the bottom of style.css)
+   ========================================= */
+
+.categories-page-container {
+    padding: 140px 8% 60px; /* Header එකට පහලින් ඉඩ තැබීමට */
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.page-title {
+    text-align: center;
+    font-size: 3rem;
+    margin-bottom: 60px;
+    font-weight: 800;
+    /* Gradient Text Effect */
+    background: linear-gradient(135deg, var(--text-main) 30%, var(--accent-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -1px;
+}
+
+/* Grid Adjustment for the full page */
+.categories-page-container .category-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* කාඩ්පත් ප්‍රමාණය ස්වයංක්‍රීයව සැකසීම */
+    gap: 30px;
+}
+
+/* Card Icons Adjustment */
+.cat-card i {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.cat-card span {
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+
+
+/* =========================================
+   AUTHOR PROFILE PAGE STYLES
+   (Add this to the bottom of style.css)
+   ========================================= */
+
+.author-container {
+    padding: 140px 8% 60px; /* Header spacing */
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* --- Profile Header Section --- */
+
+.profile-header {
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;  
+
+}
+
+.author-profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.author-large-avatar {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: var(--glass-bg);
+    border: 3px solid var(--accent-secondary);
+    box-shadow: 0 0 40px var(--accent-glow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3.5rem;
+    color: var(--text-main);
+    margin-bottom: 25px;
+    overflow: hidden;
+    transition: transform 0.4s ease;
+}
+
+.author-large-avatar:hover {
+    transform: scale(1.05) rotate(5deg);
+    border-color: var(--accent-primary);
+}
+
+.author-large-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.author-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    background: linear-gradient(to right, var(--text-main), var(--accent-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -1px;
+}
+
+.author-bio {
+    max-width: 800px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: var(--glass-shadow);
+    backdrop-filter: blur(10px);
+}
+
+.author-bio p {
+    color: var(--text-muted);
+    line-height: 1.8;
+    font-size: 1.05rem;
+    margin-bottom: 15px;
+}
+
+.author-bio p:last-child {
+    margin-bottom: 0;
+}
+
+/* --- Section Divider --- */
+.section-divider {
+    border: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+    margin: 50px 0;
+    opacity: 0.5;
+}
+
+/* --- Works Section --- */
+.works-heading {
+    font-size: 2rem;
+    color: var(--text-main);
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.works-heading::before {
+    content: '';
+    display: block;
+    width: 5px;
+    height: 30px;
+    background: var(--accent-secondary);
+    border-radius: 5px;
+    box-shadow: 0 0 10px var(--accent-secondary);
+}
+
+
+/* Responsive Author Page */
+@media (max-width: 768px) {
+    .author-title {
+        font-size: 2.5rem;
+    }
+    
+    .author-large-avatar {
+        width: 120px;
+        height: 120px;
+        font-size: 2.5rem;
+    }
+    
+    .author-bio {
+        padding: 20px;
+    }
+}
+
+
+/* User අලුත් නම් පෙන්වන පණිවිඩය ("Type everything & we give you behaves") ලස්සන කිරීමට මෙය එක් කරන්න. */
+.empty-state-msg {
+    text-align: center;
+    padding: 40px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-card);
+    color: var(--text-muted);
+}
+
+.empty-state-msg h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--accent-secondary);
+    margin-bottom: 10px;
+}
+
+.empty-state-msg p {
+    font-size: 1rem;
+}
+
+
+/* =========================================
+   BOOK INFO PAGE SPECIFIC STYLES
+   ========================================= */
+
+/* Main Container Padding Adjustment */
+.book-info-container {
+    padding: 120px 8% 60px; /* Header එකට පහලින් ඉඩ තැබීමට */
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* --- HERO SECTION (Split Layout) --- */
+.book-hero-section {
+    display: flex;
+    gap: 60px;
+    align-items: flex-start;
+    margin-bottom: 60px;
+}
+
+/* Left Side - Book Cover */
+.book-cover-wrapper {
+    flex: 1;
+    max-width: 400px;
+    position: relative;
+    border-radius: 15px;
+    /* 3D Effect for the main cover */
+    transform: perspective(1000px) rotateY(-15deg);
+    transition: transform 0.4s ease;
+    box-shadow: -20px 20px 40px rgba(0,0,0,0.5);
+}
+
+/* Hover Effect specifically for the main cover wrapper */
+.book-cover-wrapper:hover {
+    transform: perspective(1000px) rotateY(0deg) scale(1.02);
+    z-index: 10;
+}
+
+.main-book-cover {
+    width: 100%;
+    border-radius: 15px;
+    display: block;
+    border: 2px solid var(--glass-border);
+}
+
+/* 3D Reflection/Shadow Element */
+.cover-reflection {
+    position: absolute;
+    top: 102%;
+    left: 0;
+    width: 100%;
+    height: 20px;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0.4) 0%, transparent 70%);
+    opacity: 0.6;
+    border-radius: 50%;
+    transform: rotateX(80deg);
+}
+
+/* Right Side - Details */
+.book-details-content {
+    flex: 2;
+    padding-top: 10px;
+}
+
+/* Title & Heart */
+.title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.title-row h1 {
+    font-size: 3.5rem;
+    line-height: 1.1;
+    background: linear-gradient(90deg, var(--text-main), var(--text-muted));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-right: 20px;
+}
+
+.large-heart {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 50%;
+    color: var(--text-muted);
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.large-heart:hover {
+    background: rgba(244, 63, 94, 0.1);
+    color: #f43f5e;
+    border-color: #f43f5e;
+}
+
+/* Author & Rating */
+.author-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    font-size: 1.1rem;
+    color: var(--text-muted);
+}
+
+.author-avatar-placeholder {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--accent-secondary);
+}
+
+.rating {
+    margin-left: auto;
+    color: #fbbf24; /* Gold color for star */
+    font-weight: 700;
+    display: flex; align-items: center; gap: 5px;
+}
+
+/* Tags */
+.tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.tag {
+    padding: 6px 18px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    background: rgba(139, 92, 246, 0.1); /* Low opacity violet */
+    border: 1px solid var(--accent-primary);
+    color: var(--accent-primary);
+    transition: 0.3s;
+    cursor: default;
+}
+
+.tag:hover {
+    background: var(--accent-primary);
+    color: white;
+    box-shadow: 0 0 15px var(--accent-glow);
+}
+
+/* Description Box */
+.description-box {
+    padding: 30px;
+    margin-bottom: 40px;
+    position: relative;
+    /* Styles inherited from .glass-card but refined here */
+}
+
+.description-box h3 {
+    color: var(--accent-secondary);
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+.description-box p {
+    color: var(--text-muted);
+    line-height: 1.8;
+}
+
+/* Buttons Row */
+.action-buttons-row {
+    display: flex;
+    gap: 20px;
+}
+
+.btn-lg {
+    padding: 15px 40px;
+    font-size: 1.1rem;
+    display: flex; align-items: center; gap: 10px;
+}
+
+/* Divider Glow */
+.glow-line {
+    border: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--glass-border), transparent);
+    margin: 50px 0;
+}
+
+/* --- RESPONSIVE ADJUSTMENTS FOR BOOK INFO --- */
+@media (max-width: 900px) {
+    .book-hero-section {
+        flex-direction: column;
+        align-items: center;
+        gap: 40px;
+    }
+
+    .book-cover-wrapper {
+        max-width: 300px;
+        transform: none; /* Remove 3D tilt on mobile for simplicity */
+        margin: 0 auto;
+    }
+    
+    .book-details-content {
+        width: 100%;
+        text-align: center;
+    }
+
+    .title-row {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .title-row h1 {
+        font-size: 2.5rem;
+        margin-right: 0;
+    }
+
+    .author-info {
+        justify-content: center;
+    }
+    
+    .rating {
+        margin-left: 0;
+    }
+
+    .tags-container {
+        justify-content: center;
+    }
+
+    .action-buttons-row {
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .btn-lg {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+
+
+
+/* --- DASHBOARD LAYOUT --- */
+.dashboard-container {
+    display: flex;
+    gap: 30px;
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+    min-height: 80vh;
+}
+
+/* Sidebar Styling */
+.dash-sidebar {
+    flex: 0 0 280px; /* Fixed width */
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
+}
+
+.sidebar-header h2 {
+    font-size: 1.8rem;
+    margin-bottom: 40px;
+    padding-left: 15px;
+}
+
+.sidebar-nav ul {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.sidebar-nav li {
+    padding: 15px 20px;
+    cursor: pointer;
+    border-radius: 12px;
+    transition: 0.3s;
+    color: var(--text-muted);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sidebar-nav li:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+}
+
+.sidebar-nav li.active {
+    background: var(--glass-bg); /* Use glass styling */
+    color: var(--text-main);
+    border-left: 3px solid var(--accent-primary);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* Content Area Styling */
+.dash-content {
+    flex: 1;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Tab Management */
+.tab-content { display: none; animation: fadeIn 0.5s ease; }
+.tab-content.active { display: block; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.tab-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    background: rgba(0,0,0,0.2);
+    padding: 20px;
+    border-radius: 15px;
+}
+
+/* --- PROFILE FORM GRID --- */
+.profile-grid {
+    display: flex;
+    gap: 50px;
+    align-items: flex-start;
+}
+
+/* Photo Upload */
+.photo-wrapper {
+    width: 200px;
+    height: 250px;
+    border-radius: 20px;
+    overflow: hidden;
+    background: var(--glass-bg);
+    border: 2px dashed var(--glass-border);
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.photo-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.photo-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: 0.3s;
+}
+
+.photo-overlay i {
+    font-size: 2rem;
+    color: white;
+}
+
+.photo-wrapper:hover .photo-overlay { opacity: 1; }
+
+/* Form Inputs */
+.form-section { flex: 1; }
+
+.form-group-row {
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+}
+
+.dash-input-group {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    padding: 5px 15px;
+    border: 1px solid transparent;
+    transition: 0.3s;
+}
+
+.dash-input-group:hover {
+    border-color: var(--glass-border);
+}
+
+.dash-input-group.active-input {
+    border-color: var(--accent-primary);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.1);
+}
+
+.dash-input-group label {
+    width: 120px;
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+.dash-input-group input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 12px;
+    color: var(--text-muted);
+    font-family: var(--font-main);
+    font-size: 1rem;
+    outline: none;
+    cursor: pointer;
+}
+
+.dash-input-group.active-input input {
+    color: var(--text-main);
+    cursor: text;
+}
+
+.disabled-group {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+.disabled-group input { cursor: not-allowed; }
+
+.input-icon {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    opacity: 0.5;
+}
+
+/* Update Button */
+.action-footer {
+    margin-top: 30px;
+    text-align: right;
+    height: 50px; /* Reserve space */
+}
+
+.hidden { display: none; }
+
+/* Responsive */
+@media (max-width: 850px) {
+    .dashboard-container { flex-direction: column; }
+    .dash-sidebar { width: 100%; flex-direction: row; align-items: center; justify-content: space-between; }
+    .sidebar-nav ul { flex-direction: row; }
+    .profile-grid { flex-direction: column; align-items: center; }
+}
+
+
+
+
+
+/* --- WISHLIST GRID (2 Items Per Row) --- */
+.wishlist-grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* හරියටම පේළියකට 2ක් බෙදයි */
+    gap: 25px;
+    padding-bottom: 20px;
+}
+
+/* Card Style Matching the Image */
+.wishlist-card-horizontal {
+    display: flex;
+    background: #e5e5e5; /* Image එකේ ඇති අළු පැහැය */
+    border-radius: 20px; /* Image එකේ ඇති පරිදි කොටු හැඩය */
+    overflow: hidden;
+    height: 160px;
+    position: relative;
+    transition: 0.3s ease;
+}
+
+/* Dark Mode Fixes */
+[data-theme="dark"] .wishlist-card-horizontal {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--glass-border);
+}
+
+.wishlist-card-horizontal:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+/* Image Section */
+.w-card-img {
+    width: 120px;
+    height: 100%;
+    flex-shrink: 0;
+    background: transparent;
+    padding: 15px; /* Cover එක වටා ඉඩ */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.w-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    box-shadow: 3px 0 10px rgba(0,0,0,0.2);
+}
+
+/* Content Section */
+.w-card-info {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+}
+
+.w-card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b; /* Dark text for light card */
+    margin-bottom: 5px;
+    line-height: 1.3;
+}
+[data-theme="dark"] .w-card-title { color: var(--text-main); }
+
+.w-card-author {
+    font-size: 0.9rem;
+    color: #64748b;
+    font-weight: 600;
+}
+.w-card-author span { color: #2563eb; } /* Blue Author Name */
+
+/* Heart Icon Styling (RED by default) */
+.w-remove-btn {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background: transparent;
+    border: none;
+    font-size: 1.6rem;
+    color: #ef4444; /* Default Red Color explicitly set */
+    cursor: pointer;
+    transition: 0.2s;
+    filter: drop-shadow(0 2px 4px rgba(239, 68, 68, 0.2));
+    z-index: 10;
+}
+
+.w-remove-btn:hover {
+    transform: scale(1.1);
+}
+
+/* Unliked State (JavaScript වලින් add කරන class එක) */
+.w-remove-btn.unliked {
+    color: #94a3b8; /* Grey color when removed */
+    filter: none;
+}
+
+/* Mobile Responsive: 1 Item Per Row */
+@media (max-width: 768px) {
+    .wishlist-grid-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+
+/* =========================================
+   READING MODE & FLIPBOOK STYLES
+   ========================================= */
+
+.reading-mode {
+    height: 100vh;
+    overflow: hidden; 
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-main, #11111b); /* Dark theme fallback */
+}
+
+.reading-header {
+    position: fixed;
+    top: 10px;
+    width: 95%;
+    left: 2.5%;
+    z-index: 1000;
+}
+
+.flipbook-section {
+    flex: 1;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    padding-top: 60px; 
+}
+
+.flipbook-viewport {
+    width: 100%;
+    height: 100%;
+    overflow: auto; 
+    display: flex;
+    justify-content: flex-start; 
+    align-items: flex-start;
+    scroll-behavior: smooth;
+}
+
+.flipbook-viewport::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+.flipbook-viewport::-webkit-scrollbar-thumb {
+    background: var(--accent-secondary, #a6e3a1);
+    border-radius: 4px;
+}
+.flipbook-viewport::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.flipbook {
+    margin: 0; 
+    transition: transform 0.3s ease-out, margin 0.3s ease-out; 
+    transform-origin: 0 0; 
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+.flipbook .page {
+    background-color: #fff;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.1); 
+}
+
+.flipbook .page canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain; 
+}
+
+.flipbook .shadow {
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
+}
+
+/* --- Bottom Controls Bar --- */
+.reading-controls {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 30px;
+    border-radius: 50px;
+    z-index: 2000;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    background: rgba(30, 30, 46, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.control-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-main, #cdd6f4);
+    font-size: 1.1rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.control-btn:hover {
+    background: var(--accent-secondary, #a6e3a1);
+    color: #11111b;
+    transform: scale(1.1);
+    box-shadow: 0 0 15px var(--accent-secondary, #a6e3a1);
+}
+
+.divider-vertical {
+    width: 1px;
+    height: 24px;
+    background: rgba(255,255,255,0.2);
+    margin: 0 5px;
+}
+
+#page-info, #zoom-level {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-muted, #a6adc8);
+    min-width: 60px;
+    text-align: center;
+    font-variant-numeric: tabular-nums; 
+}
+
+@media (max-width: 600px) {
+    .reading-controls {
+        width: 90%;
+        padding: 10px 15px;
+        gap: 8px;
+        bottom: 15px;
+    }
+    
+    .control-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+    }
+    
+    #page-info { display: none; } 
+}
+
+
+
+    /* Carousel (Slider) එක සඳහා අවශ්‍ය CSS */
+    .carousel-container {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+        padding: 10px 0;
+    }
+    .carousel-track {
+        display: flex;
+        gap: 20px;
+        transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1); /* ලස්සන Smooth Animation එකක් */
+        width: 100%;
+    }
+    /* එකවර කාඩ්පත් 4ක් පෙන්වීම */
+    .carousel-track .book-card {
+        flex: 0 0 calc(25% - 15px); 
+        max-width: calc(25% - 15px);
+    }
+    .carousel-nav {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 25px;
+    }
+    .carousel-nav button {
+        background: rgba(166, 227, 161, 0.1);
+        border: 1px solid #a6e3a1;
+        color: #a6e3a1;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: 0.3s;
+        font-size: 1.2rem;
+    }
+    .carousel-nav button:hover {
+        background: #a6e3a1;
+        color: #11111b;
+        transform: scale(1.1);
+    }
+
+    /* Mobile Phones සහ Tablets වලදී කාඩ්පත් ගණන වෙනස් වීම */
+    @media (max-width: 992px) { .carousel-track .book-card { flex: 0 0 calc(33.333% - 14px); max-width: calc(33.333% - 14px); } }
+    @media (max-width: 768px) { .carousel-track .book-card { flex: 0 0 calc(50% - 10px); max-width: calc(50% - 10px); } }
+    @media (max-width: 480px) { .carousel-track .book-card { flex: 0 0 100%; max-width: 100%; } }
+
+
+
+
+
+
+    /* Category Slider එක සඳහා අමතර CSS */
+    .carousel-track .cat-card {
+        flex: 0 0 calc(25% - 15px); 
+        max-width: calc(25% - 15px);
+        margin: 0; /* Default margin ඉවත් කිරීම */
+    }
+    @media (max-width: 992px) { .carousel-track .cat-card { flex: 0 0 calc(33.333% - 14px); max-width: calc(33.333% - 14px); } }
+    @media (max-width: 768px) { .carousel-track .cat-card { flex: 0 0 calc(50% - 10px); max-width: calc(50% - 10px); } }
+    @media (max-width: 480px) { .carousel-track .cat-card { flex: 0 0 100%; max-width: 100%; } }
+
+
+
+
+
+    /* =========================================
+   ALL AUTHORS PAGE STYLES (CIRCULAR GRID)
+   ========================================= */
+
+.authors-circle-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 50px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto 60px;
+}
+
+.author-circle-card {
+    display: block;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 50%;
+    outline: none;
+}
+
+.author-img-wrapper {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    background: var(--glass-bg);
+}
+
+.author-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+/* Hover කරන විට එන අඳුරු පසුබිම සහ නම */
+.author-name-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(17, 17, 27, 0.8); /* Dark semi-transparent background */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    backdrop-filter: blur(3px);
+}
+
+.author-name-overlay span {
+    color: #ffffff;
+    font-size: 1.3rem;
+    font-weight: 700;
+    text-align: center;
+    padding: 15px;
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+    line-height: 1.2;
+}
+
+/* Hover Effects */
+.author-circle-card:hover .author-img-wrapper {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 30px var(--accent-glow);
+    transform: scale(1.05) translateY(-5px);
+}
+
+.author-circle-card:hover .author-img-wrapper img {
+    transform: scale(1.15); /* පින්තූරය තරමක් ලොකු වීම */
+}
+
+.author-circle-card:hover .author-name-overlay {
+    opacity: 1; /* නම පෙනෙන්නට ගැනීම */
+}
+
+.author-circle-card:hover .author-name-overlay span {
+    transform: translateY(0); /* නම පහළ සිට උඩට පැමිණීම */
+}
+
+/* Responsive (Mobile/Tablet) */
+@media (max-width: 768px) {
+    .author-img-wrapper {
+        width: 160px;
+        height: 160px;
+    }
+    .author-name-overlay span {
+        font-size: 1.1rem;
+    }
+    .authors-circle-grid {
+        gap: 30px;
+    }
+}
+
+@media (max-width: 480px) {
+    .authors-circle-grid { 
+        gap: 20px; 
+    }
+    .author-img-wrapper {
+        width: 130px;
+        height: 130px;
+    }
+    .author-name-overlay span {
+        font-size: 0.95rem;
+    }
+}
+
+
+/* =========================================
+   COMMENTS SECTION STYLES (COMPACT VERSION)
+   ========================================= */
+
+.comments-wrapper {
+    max-width: 750px; /* කලින් 900px තිබූ පළල 750px දක්වා අඩු කර ඇත */
+    margin: 0 auto;
+}
+
+.add-comment-box {
+    padding: 15px; /* Padding එක අඩු කර ඇත */
+    margin-bottom: 25px;
+}
+
+.add-comment-box textarea {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px; /* රවුම් බව ටිකක් අඩු කර ඇත */
+    padding: 12px;
+    color: var(--text-main);
+    font-family: var(--font-main);
+    font-size: 0.95rem; /* අකුරු ප්‍රමාණය කුඩා කර ඇත */
+    resize: vertical;
+    min-height: 80px; /* Textbox එකේ උස 120px සිට 80px දක්වා අඩු කර ඇත */
+    transition: 0.3s;
+}
+
+.add-comment-box textarea:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.2);
+}
+
+.comment-card {
+    padding: 15px; /* කාඩ් එකේ ඇතුළත ඉඩ අඩු කර ඇත */
+    margin-bottom: 15px;
+    display: flex;
+    gap: 15px; /* පින්තූරය සහ අකුරු අතර ඉඩ අඩු කර ඇත */
+    border-left: 3px solid transparent;
+    transition: 0.3s;
+    background: var(--glass-bg);
+    border-radius: 12px;
+}
+
+.comment-card:hover {
+    border-left-color: var(--accent-secondary);
+}
+
+.comment-avatar img {
+    width: 40px; /* User ගේ පින්තූරය 55px සිට 40px දක්වා කුඩා කර ඇත */
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--glass-border);
+}
+
+.comment-content {
+    flex: 1;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.comment-author {
+    font-weight: 700;
+    color: var(--accent-secondary);
+    font-size: 0.95rem; /* නමේ අකුරු කුඩා කර ඇත */
+}
+
+.comment-date {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.comment-text {
+    color: var(--text-main);
+    line-height: 1.5;
+    font-size: 0.9rem; /* කමෙන්ට් එකේ අකුරු කුඩා කර ඇත */
+    white-space: pre-wrap;
+}
+
+.comment-actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 15px;
+}
+
+.comment-actions button {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.comment-actions button:hover {
+    color: var(--accent-primary);
+}
+
+/* Edit Comment Box */
+.edit-comment-box {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--accent-secondary);
+    border-radius: 8px;
+    padding: 10px;
+    color: white;
+    font-family: inherit;
+    min-height: 60px; /* Edit box උසද අඩු කර ඇත */
+}
+
+/* --- Scrollbar Styles --- */
+#commentsListContainer {
+    max-height: 320px; /* Scroll වන උස 420px සිට 320px දක්වා අඩු කර ඇත */
+    overflow-y: auto;
+    padding-right: 10px;
+    margin-bottom: 20px;
+}
+
+#commentsListContainer::-webkit-scrollbar { width: 5px; }
+#commentsListContainer::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
+#commentsListContainer::-webkit-scrollbar-thumb { background: var(--accent-secondary, #06b6d4); border-radius: 10px; }
+#commentsListContainer::-webkit-scrollbar-thumb:hover { background: var(--accent-primary, #8b5cf6); }
+
+/* Responsive Comments */
+@media (max-width: 600px) {
+    .comment-card { flex-direction: column; gap: 10px; }
+    .comment-header { flex-direction: column; align-items: flex-start; gap: 5px; }
+}
+
+
+
+/* =========================================
+   CONTACT US PAGE STYLES
+   ========================================= */
+
+.contact-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding-bottom: 80px;
+}
+
+.contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr; /* වම් පසට වඩා දකුණු පස පළල වැඩියි */
+    gap: 50px;
+    align-items: start;
+}
+
+/* Info Cards (Left Side) */
+.contact-info-side {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.info-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 25px;
+    border-radius: 15px;
+    transition: transform 0.3s ease;
+}
+
+.info-card:hover {
+    transform: translateX(10px);
+    border-color: var(--accent-secondary);
+}
+
+.info-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(139, 92, 246, 0.1);
+    color: var(--accent-primary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.info-text h4 {
+    color: var(--text-main);
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+}
+
+.info-text p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.contact-social {
+    margin-top: 20px;
+    padding: 0 10px;
+}
+.contact-social h4 { color: var(--text-main); font-size: 1.2rem; }
+
+/* Form (Right Side) */
+.contact-form-side {
+    padding: 40px;
+    border-radius: 20px;
+}
+
+.contact-input-group {
+    margin-bottom: 20px;
+}
+
+.contact-input-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.contact-input {
+    width: 100%;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    color: var(--text-main);
+    font-family: var(--font-main);
+    font-size: 1rem;
+    transition: 0.3s;
+}
+
+.contact-input:focus {
+    outline: none;
+    border-color: var(--accent-secondary);
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+textarea.contact-input {
+    min-height: 150px;
+    resize: vertical;
+}
+
+/* Form Row (First/Last name side by side) */
+.form-row {
+    display: flex;
+    gap: 20px;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .contact-grid {
+        grid-template-columns: 1fr; /* Mobile එකේදී එකට පහළින් එක පෙන්වීම */
+        gap: 40px;
+    }
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+    .contact-form-side {
+        padding: 30px 20px;
+    }
+}
+
+
+
+
+
+
+
+/* =========================================
+   MODERN TOAST NOTIFICATIONS STYLES
+   ========================================= */
+
+.toast-container {
+    position: fixed;
+    top: 100px; /* Navbar එකට යටින් පටන් ගැනීමට */
+    right: 30px; /* දකුණු පසින් ඉඩ */
+    z-index: 9999; /* හැම එකකටම උඩින් පෙන්වීමට */
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 400px;
+    width: 100%;
+}
+
+.glass-toast {
+    position: relative;
+    background: rgba(17, 17, 27, 0.6); /* Dark semi-transparent background */
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 18px 25px 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    /* Slide-in Animation */
+    animation: toastSlideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    transition: all 0.4s ease;
+}
+
+/* Slide-in Animation Keyframes */
+@keyframes toastSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+/* Fade-out Animation Class (JS මගින් එක් කරයි) */
+.glass-toast.hide {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+    margin-top: -70px; /* smooth ලෙස උඩට යාමට */
+}
+
+/* Category Colors & Neon Glow */
+.glass-toast.success {
+    border-left: 4px solid var(--accent-secondary); /* Cyan/Green */
+    box-shadow: 0 5px 20px rgba(6, 182, 212, 0.15);
+}
+.glass-toast.error, .glass-toast.danger {
+    border-left: 4px solid #f43f5e; /* Rose/Red */
+    box-shadow: 0 5px 20px rgba(244, 63, 94, 0.15);
+}
+.glass-toast.warning {
+    border-left: 4px solid #eab308; /* Yellow */
+}
+
+/* Toast Icon */
+.toast-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+.glass-toast.success .toast-icon { color: var(--accent-secondary); }
+.glass-toast.error .toast-icon, .glass-toast.danger .toast-icon { color: #f43f5e; }
+.glass-toast.warning .toast-icon { color: #eab308; }
+
+/* Toast Content */
+.toast-content {
+    flex: 1;
+}
+.toast-message {
+    color: var(--text-main);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0;
+    font-weight: 500;
+}
+
+/* Close Button */
+.toast-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 5px;
+    transition: 0.3s;
+    opacity: 0.7;
+    flex-shrink: 0;
+    margin-left: 10px;
+}
+.toast-close:hover {
+    color: #ffffff;
+    opacity: 1;
+    transform: rotate(90deg);
+}
+
+/* Progress Bar (Modern Touch) */
+.toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.1);
+}
+.toast-progress::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    /* Progress Animation */
+    animation: toastProgress 5s linear forwards; /* තත්පර 5යි */
+}
+
+/* Progress Bar Colors */
+.glass-toast.success .toast-progress::after { background: var(--accent-secondary); }
+.glass-toast.error .toast-progress::after, .glass-toast.danger .toast-progress::after { background: #f43f5e; }
+.glass-toast.warning .toast-progress::after { background: #eab308; }
+
+@keyframes toastProgress {
+    from { width: 100%; }
+    to { width: 0%; }
+}
+
+/* Responsive (Mobile) */
+@media (max-width: 500px) {
+    .toast-container {
+        top: 80px;
+        right: 15px;
+        left: 15px;
+        max-width: calc(100% - 30px);
+    }
+    .glass-toast {
+        padding: 15px;
+    }
+}
+
+
+
+/* =========================================
+   LIBROJET PRELOADER STYLES
+   ========================================= */
+
+#libro-preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--bg-body, #050505);
+    z-index: 999999; /* සියල්ලටම වඩා උඩින් පෙන්වීමට */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.6s cubic-bezier(0.87, 0, 0.13, 1), visibility 0.6s ease;
+    backdrop-filter: blur(10px);
+}
+
+.preloader-content {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.preloader-icon {
+    font-size: 3.5rem;
+    color: var(--accent-primary);
+    animation: preloaderPulse 1.5s infinite ease-in-out;
+    filter: drop-shadow(0 0 15px var(--accent-glow));
+}
+
+.preloader-text {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: 1px;
+    margin: 0;
+}
+
+.loading-bar-container {
+    width: 180px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 10px;
+    position: relative;
+}
+
+.loading-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+    border-radius: 10px;
+    animation: loadingProgress 1.5s infinite ease-in-out;
+    box-shadow: 0 0 10px var(--accent-secondary);
+}
+
+/* Animations */
+@keyframes preloaderPulse {
+    0% { transform: scale(1); opacity: 0.8; }
+    50% { 
+        transform: scale(1.15); 
+        opacity: 1; 
+        color: var(--accent-secondary);
+        filter: drop-shadow(0 0 25px var(--accent-secondary)); 
+    }
+    100% { transform: scale(1); opacity: 0.8; }
+}
+
+@keyframes loadingProgress {
+    0% { left: -50%; width: 50%; }
+    50% { left: 25%; width: 50%; }
+    100% { left: 100%; width: 50%; }
+}
+
+/* JS මගින් Preloader එක සැඟවීමට යොදා ගන්නා Class එක */
+.preloader-hidden {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: scale(1.1); /* මැකී යන ගමන් මඳක් ලොකු වීම */
+}
+
+
+
+/* =========================================
+   DEEP THINKING FLOATING BUTTON
+   ========================================= */
+
+.deep-thinking-wrapper {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 999; /* අනිත් සියල්ලටම වඩා උඩින් පෙන්වීමට */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.deep-thinking-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--glass-bg); /* Glass effect */
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3), inset 0 0 15px rgba(255, 255, 255, 0.05);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    padding: 0;
+}
+
+/* Hover Effect */
+.deep-thinking-btn:hover {
+    transform: scale(1.1) rotate(5deg);
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 25px var(--accent-glow), inset 0 0 20px rgba(139, 92, 246, 0.2);
+    background: rgba(139, 92, 246, 0.15); /* Slight tint of accent color */
+}
+
+/* Tooltip Styling */
+.deep-thinking-tooltip {
+    position: absolute;
+    right: 80px; /* බොත්තමට වම් පසින් පෙන්වීමට */
+    background: var(--header-bg);
+    color: var(--text-main);
+    padding: 8px 16px;
+    border-radius: var(--radius-pill);
+    font-size: 0.95rem;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(20px);
+    transition: all 0.3s ease;
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    backdrop-filter: blur(12px);
+}
+
+/* Tooltip Arrow */
+.deep-thinking-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -6px;
+    transform: translateY(-50%);
+    border-width: 6px 0 6px 6px;
+    border-style: solid;
+    border-color: transparent transparent transparent var(--glass-border);
+}
+
+/* Show Tooltip on Hover */
+.deep-thinking-wrapper:hover .deep-thinking-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+}
+
+/* Responsive Position for Mobile */
+@media (max-width: 768px) {
+    .deep-thinking-wrapper {
+        bottom: 20px;
+        right: 20px;
+    }
+    .deep-thinking-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+    .deep-thinking-tooltip {
+        right: 65px;
+        font-size: 0.85rem;
+        padding: 6px 12px;
+    }
+}
+

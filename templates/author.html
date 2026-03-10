@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <main class="author-container">
+        <section class="author-profile">
+            <div class="profile-header">
+                <div class="author-large-avatar">
+                    {% if author.image %}
+                        <img src="/static/uploads/authors/{{ author.image }}" alt="{{ author.name }}">
+                    {% else %}
+                        <i class="fa-solid fa-user-pen" style="font-size: 3rem; color: #a6e3a1;"></i>
+                    {% endif %}
+                </div>
+                <h1 class="author-title">{{ author.name }}</h1>
+            </div>
+            
+            <div class="author-bio glass-card">
+                <p>
+                   {{ author.bio | default("No biography available for this author at the moment.", true) }}
+                </p>
+            </div>
+        </section>
+
+        <hr class="section-divider">
+
+        <section class="author-works">
+            <h2 class="works-heading">Written by {{ author.name }}</h2>
+            
+            <div class="books-grid">
+                {% if books %}
+                    {% for book in books %}
+                    <div class="book-card glass-card" onclick="window.location.href='/book/{{ book._id }}'" style="cursor: pointer;">
+                        <div class="book-cover-container">
+                            {% if book.cover_image %}
+                                <img src="/static/uploads/books/covers/{{ book.cover_image }}" alt="{{ book.title }}" class="book-cover-img">
+                            {% else %}
+                                <img src="https://placehold.co/400x600/1e1e2e/ffffff?text=No+Cover" alt="No Cover" class="book-cover-img">
+                            {% endif %}
+                            <div class="overlay"></div>
+                        </div>
+                        <div class="book-info">
+                            <h4 class="book-title">{{ book.title }}</h4>
+                            <span class="book-author">By {{ author.name }}</span>
+                        </div>
+                        <div class="book-actions">
+                            <button class="action-btn wishlist-btn"><i class="fa-regular fa-heart"></i></button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="text-align: center; width: 100%; color: #aaa; margin-top: 20px;">This author hasn't published any books yet.</p>
+                {% endif %}
+            </div>
+        </section>
+    </main>
+
+{% endblock %}

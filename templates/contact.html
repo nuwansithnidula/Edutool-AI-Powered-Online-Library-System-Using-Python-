@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="container contact-container" style="min-height: 80vh; padding-top: 100px;">
+    
+    <div class="section-header" style="text-align: center; margin-bottom: 60px; flex-direction: column;">
+        <h1 style="color: white; font-size: 3.5rem; margin-bottom: 10px;">
+            Get in <span class="gradient-text">Touch</span>
+        </h1>
+        <div class="line-decoration" style="margin: 15px auto; max-width: 200px;"></div>
+        <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 600px;">
+            Have a question, feedback, or just want to say hi? We'd love to hear from you. Drop us a message below!
+        </p>
+    </div>
+
+    <div class="contact-grid">
+        
+        <div class="contact-info-side">
+            <div class="info-card glass-card">
+                <div class="info-icon"><i class="fa-solid fa-location-dot"></i></div>
+                <div class="info-text">
+                    <h4>Our Location</h4>
+                    <p>123 Knowledge Avenue, Colombo, Sri Lanka</p>
+                </div>
+            </div>
+
+            <div class="info-card glass-card">
+                <div class="info-icon"><i class="fa-solid fa-envelope"></i></div>
+                <div class="info-text">
+                    <h4>Email Us</h4>
+                    <p>hello@edupool.com</p>
+                </div>
+            </div>
+
+            <div class="info-card glass-card">
+                <div class="info-icon"><i class="fa-solid fa-phone"></i></div>
+                <div class="info-text">
+                    <h4>Call Us</h4>
+                    <p>+94 77 123 4567</p>
+                </div>
+            </div>
+            
+            <div class="contact-social">
+                <h4>Follow Us</h4>
+                <div class="social-icons" style="justify-content: flex-start; margin-top: 15px;">
+                    <div class="social-circle"><i class="fa-brands fa-facebook-f"></i></div>
+                    <div class="social-circle"><i class="fa-brands fa-twitter"></i></div>
+                    <div class="social-circle"><i class="fa-brands fa-instagram"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="contact-form-side glass-card">
+            <h3 style="margin-bottom: 25px; color: var(--text-main); font-size: 1.5rem;">Send a Message</h3>
+            
+            <form action="{{ url_for('contact') }}" method="POST">
+                <div class="form-row">
+                    <div class="contact-input-group" style="flex: 1;">
+                        <label>Your Name</label>
+                        <input type="text" name="name" class="contact-input" placeholder="John Doe" required>
+                    </div>
+                    <div class="contact-input-group" style="flex: 1;">
+                        <label>Email Address</label>
+                        <input type="email" name="email" class="contact-input" placeholder="john@example.com" required>
+                    </div>
+                </div>
+
+                <div class="contact-input-group">
+                    <label>Subject</label>
+                    <input type="text" name="subject" class="contact-input" placeholder="How can we help you?">
+                </div>
+
+                <div class="contact-input-group">
+                    <label>Message</label>
+                    <textarea name="message" class="contact-input" placeholder="Write your message here..." required></textarea>
+                </div>
+
+                <button type="submit" class="btn-neon" style="width: 100%; padding: 15px; font-size: 1.1rem; margin-top: 10px;">
+                    <i class="fa-regular fa-paper-plane"></i> Send Message
+                </button>
+            </form>
+        </div>
+
+    </div>
+
+</main>
+{% endblock %}

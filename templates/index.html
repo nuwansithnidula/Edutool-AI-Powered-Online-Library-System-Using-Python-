@@ -1,0 +1,550 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="hero">
+    <div class="hero-content">
+        <h1>Future of <br> <span class="gradient-text">Knowledge.</span></h1>
+        
+        <p class="hero-desc">
+            Dive into Edupool's immersive digital library. A curated universe of books, academic resources, and stories, redesigned for the next generation of readers.
+        </p>
+
+        <div class="search-wrapper glass-panel">
+            <i class="fa-solid fa-cloud-arrow-up icon-left" id="upload-trigger" title="Upload Cover Art" style="cursor: pointer;"></i>
+            
+            <input type="text" name="q" id="searchQuery" placeholder="Search across the universe...">
+            
+            <button class="search-btn" onclick="performSearch()">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+            
+            <input type="file" id="file-input" name="file" accept="image/*" style="display: none;">
+        </div>
+    </div>
+</section>
+
+<input type="hidden" id="userLoggedIn" value="{{ 'true' if current_user.is_authenticated else 'false' }}">
+
+<section class="section-container" id="userRecSection" style="display: none;">
+    <div class="section-header">
+        <h3>Picked For You 🔮</h3>
+        <div class="line-decoration"></div>
+    </div>
+    <div id="userRecContent"></div>
+
+</section>
+
+<section class="section-container" id="searchResultsSection" style="display: none;">
+    <div class="section-header">
+        <h3>Search Results</h3>
+        <div class="line-decoration"></div>
+    </div>
+
+    <div id="ocrResult" style="margin-bottom: 20px; text-align: center;"></div>
+
+    <div class="books-grid" id="resultsArea"></div>
+
+    <div class="btn-center">
+        <button class="btn-glass-pill">View All Books</button>
+    </div>
+    
+</section>
+
+<section class="section-container">
+    <div class="section-header">
+        <h3>Trending Categories 🌟</h3>
+        <div class="line-decoration"></div>
+    </div>
+    
+    <div class="carousel-container" id="categoryCarousel">
+        <div id="categoriesLoading" class="text-center w-100" style="color: #a6adc8;">
+            <i class="fa-solid fa-circle-notch fa-spin"></i> Loading trending categories...
+        </div>
+        
+        <div class="carousel-track" id="categoryTrack">
+            </div>
+    </div>
+
+    <div class="carousel-nav" id="categoryNav" style="display: none;">
+        <button onclick="slideCategories('prev')" title="Previous"><i class="fa-solid fa-chevron-left"></i></button>
+        <button onclick="slideCategories('next')" title="Next"><i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+</section>
+
+<section class="section-container">
+    <div class="section-header">
+        <h3>Popular Reads 🔥</h3>
+        <div class="line-decoration"></div>
+    </div>
+    
+    <div class="carousel-container" id="popularCarousel">
+        <div class="text-center w-100" id="popularLoading" style="color: #a6adc8;">
+            <i class="fa-solid fa-circle-notch fa-spin"></i> Loading popular books...
+        </div>
+        
+        <div class="carousel-track" id="popularTrack">
+            </div>
+    </div>
+
+    <div class="carousel-nav" id="carouselNav" style="display: none;">
+        <button onclick="slidePopular('prev')" title="Previous"><i class="fa-solid fa-chevron-left"></i></button>
+        <button onclick="slidePopular('next')" title="Next"><i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+</section>
+
+
+<section class="section-container" id="suggestionsSection" style="display: none; margin-top: 50px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 30px;">
+    <div class="section-header">
+        <h3 id="suggestionHeader">Recommended For You 🪄</h3>
+        <div class="line-decoration"></div>
+    </div>
+    <button onclick="document.getElementById('suggestionsSection').style.display='none'" style="float: right; background: none; border: none; color: white; cursor: pointer; margin-top: -40px;">
+        <i class="fa-solid fa-times"></i> Close
+    </button>
+    <div class="books-grid" id="suggestionsGrid"></div>
+</section>
+
+
+<script>
+    const API_BASE = "http://127.0.0.1:5000/api/books";
+
+    // --- Page Load Events ---
+    document.addEventListener('DOMContentLoaded', () => {
+        checkAndLoadUserRecs(); // Load recommendations
+        loadPopularBooks();
+        loadTrendingCategories();
+        
+        // Handle File Upload Icon Click
+        document.getElementById('upload-trigger').addEventListener('click', () => {
+            document.getElementById('file-input').click();
+        });
+    });
+
+    // --- Function 1: Load Personal Recommendations ---
+    async function checkAndLoadUserRecs() {
+        const isLoggedIn = document.getElementById('userLoggedIn').value === 'true';
+        const recSection = document.getElementById('userRecSection');
+        const recContent = document.getElementById('userRecContent');
+
+        if (!isLoggedIn) {
+            recSection.style.display = 'none';
+            return;
+        }
+
+        recSection.style.display = 'block';
+        recContent.innerHTML = "<div class='text-center'>Reading your mind... 🧠</div>";
+
+        try {
+            // IMPORTANT: credentials: 'include' is needed for Flask-Login cookies
+            const response = await fetch(`${API_BASE}/picked-for-you`, {
+                method: 'GET',
+                credentials: 'include', 
+                headers: { 'Content-Type': 'application/json' }
+            });
+            
+            const data = await response.json();
+            recContent.innerHTML = ""; 
+
+            const pickedBooks = data.picked || [];
+
+            if (pickedBooks.length === 0) {
+                recContent.innerHTML = `
+                    <div class="empty-state-msg">
+                        <h3>Type everything & we give you behaves ✨</h3>
+                        <p>Start searching to build your personalized library.</p>
+                    </div>`;
+            } else {
+                let booksHtml = '<div class="books-grid">';
+                pickedBooks.slice(0, 8).forEach(book => {
+                    booksHtml += createBookCard(book);
+                });
+                booksHtml += '</div>';
+                recContent.innerHTML = booksHtml;
+            }
+
+        } catch (error) {
+            console.error("Error loading recommendations:", error);
+            recContent.innerHTML = "<div class='text-center text-muted'>Could not load recommendations.</div>";
+        }
+    }
+
+    // --- Function 2: Perform Search ---
+    async function performSearch() {
+        const query = document.getElementById('searchQuery').value;
+        const imageInput = document.getElementById('file-input').files[0];
+        
+        const resultsSection = document.getElementById('searchResultsSection');
+        const resultsArea = document.getElementById('resultsArea');
+        const ocrResultDiv = document.getElementById('ocrResult');
+        
+        // Hide other sections
+        const userRecSection = document.getElementById('userRecSection');
+        if (userRecSection) userRecSection.style.display = 'none';
+        document.getElementById('suggestionsSection').style.display = 'none';
+
+        // Show Results Section with Loading
+        resultsSection.style.display = 'block';
+        resultsArea.innerHTML = "<div class='text-center'>Analyzing... 🧠</div>";
+        ocrResultDiv.innerHTML = "";
+        
+        resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        const formData = new FormData();
+        formData.append('query', query);
+        if (imageInput) {
+            formData.append('image', imageInput);
+        }
+
+        try {
+            const response = await fetch(`${API_BASE}/search`, {
+                method: 'POST',
+                body: formData 
+            });
+
+            const data = await response.json();
+            resultsArea.innerHTML = "";
+
+            // Show OCR Text if available
+            if (data.ocr_text) {
+                ocrResultDiv.innerHTML = `<b>OCR Detected:</b> "${data.ocr_text}"`;
+            }
+
+            // Handle No Results
+            if (!data.results || data.results.length === 0) {
+                resultsArea.innerHTML = "<p class='text-danger text-center' style='width:100%'>No relevant books found.</p>";
+                return;
+            }
+
+            // Render Books
+            data.results.forEach((book) => {
+                resultsArea.innerHTML += createBookCard(book);
+            });
+
+        } catch (error) {
+            console.error(error);
+            resultsArea.innerHTML = "<p class='text-danger'>Error connecting to server!</p>";
+        }
+    }
+
+    
+    // --- Function 3: Create HTML for Book Card (UPDATED) ---
+    function createBookCard(book) {
+        // 1. ID Handling
+        const bookId = book.id || book._id;
+        
+        // 2. URL Construction
+        const bookUrl = bookId ? `/book/${bookId}` : '#'; 
+        // කර්තෘ සෙවුම හෝ පිටුව සඳහා ලින්ක් එක (අවශ්‍ය පරිදි වෙනස් කරගන්න)
+        const authorUrl = book.authors ? `/author/${encodeURIComponent(book.authors)}` : '#';
+        
+        const safeTitle = book.title.replace(/'/g, "\\'");
+        const imgUrl = book.thumbnail || "https://placehold.co/400x600/1e1e2e/ffffff?text=No+Cover";
+        const authors = book.authors || "Unknown";
+
+        return `
+            <div class="book-card glass-card" style="cursor: pointer;" onclick="window.location.href='${bookUrl}'">
+                <div class="book-cover-container">
+                    <img src="${imgUrl}" alt="${book.title}" class="book-cover-img">
+                    <div class="overlay"></div>
+                </div>
+                
+                <div class="book-info">
+                    <h4 class="book-title">${book.title}</h4>
+                    <p class="book-author">by 
+                        <a href="${authorUrl}" class="author-link" onclick="event.stopPropagation()">
+                            ${authors}
+                        </a>
+                    </p>
+                </div>
+
+                <div class="book-actions">
+                    <button class="action-btn wishlist-btn" 
+                            onclick="event.stopPropagation(); toggleWishlist('${bookId}')" 
+                            title="Add to Wishlist">
+                        <i class="fa-regular fa-heart"></i>
+                    </button>
+                    
+                    <button class="action-btn suggestion-btn" 
+                            onclick="event.stopPropagation(); getSuggestions('${safeTitle}')" 
+                            title="Show Similar Books">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    // Wishlist එකට පොතක් එකතු කිරීම හෝ ඉවත් කිරීම (Toggle)
+    async function toggleWishlist(bookId) {
+        // ලොග් වී නැත්නම් Login පිටුවට යවන්න
+        const isLoggedIn = document.getElementById('userLoggedIn').value === 'true';
+        if (!isLoggedIn) {
+            window.location.href = '/auth/login';
+            return;
+        }
+
+        try {
+            // අපි අලුතින් සාදාගත් API එකට දත්ත යැවීම
+            const response = await fetch('/api/wishlist/toggle', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ book_id: bookId })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // බොත්තම සොයා ගැනීම (Event එක හරහා හෝ ID එක හරහා)
+                // සටහන: මෙය නිවැරදිව වැඩ කිරීමට නම් බොත්තම click කළ අවස්ථාවේදී අදාල icon එක වෙනස් විය යුතුය.
+                // නමුත් සරලව user ට පණිවිඩයක් ලබා දීම පහසුයි:
+                
+                if (data.action === 'added') {
+                    alert("Book added to wishlist! ❤️");
+                    // අවශ්‍ය නම් Icon එක පාට කරන්න logic එකක් මෙතන ලියන්න පුළුවන්
+                } else {
+                    alert("Book removed from wishlist! 💔");
+                }
+            } else {
+                console.error("Failed:", data.error);
+                alert("Something went wrong.");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
+
+
+
+    // --- Function 4: Get Similar Books (Suggestions) ---
+    async function getSuggestions(bookTitle) {
+        const suggestionSection = document.getElementById('suggestionsSection');
+        const suggestionGrid = document.getElementById('suggestionsGrid');
+        const suggestionHeader = document.getElementById('suggestionHeader');
+
+        suggestionSection.style.display = "block";
+        suggestionHeader.innerText = `Because you liked: "${bookTitle}"`;
+        suggestionGrid.innerHTML = "<div class='text-center' style='width:100%'>Finding magic... ✨</div>";
+
+        suggestionSection.scrollIntoView({ behavior: 'smooth' });
+
+        try {
+            const response = await fetch(`${API_BASE}/suggest`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title: bookTitle })
+            });
+            const data = await response.json();
+
+            suggestionGrid.innerHTML = "";
+
+            if (!data.suggestions || data.suggestions.length === 0) {
+                suggestionGrid.innerHTML = "<p class='text-muted'>No similar books found.</p>";
+                return;
+            }
+
+            data.suggestions.forEach(book => {
+                // Reuse createBookCard logic but add match score manually if needed
+                // Or just use the same card style
+                
+                // For suggestions, we also want them clickable:
+                const bookId = book.id || book._id;
+                const bookUrl = bookId ? `/book/${bookId}` : '#';
+                const imgUrl = book.thumbnail || "https://placehold.co/400x600/1e1e2e/ffffff?text=No+Cover";
+                
+                suggestionGrid.innerHTML += `
+                <div class="book-card glass-card" style="border: 1px solid rgba(166, 227, 161, 0.3); cursor: pointer;"
+                     onclick="window.location.href='${bookUrl}'">
+                    <div class="book-cover-container">
+                        <img src="${imgUrl}" alt="${book.title}" class="book-cover-img">
+                        <div class="overlay"></div>
+                    </div>
+                    
+                    <div class="book-info">
+                        <h4 class="book-title">${book.title}</h4>
+                        <p class="book-author">by ${book.authors || 'Unknown'}</p>
+                        <small class="text-success">Match: ${book.match_score || 'N/A'}%</small>
+                    </div>
+
+                    <div class="book-actions">
+                        <button class="action-btn wishlist-btn" 
+                            onclick="event.stopPropagation(); toggleWishlist('${bookId}')" 
+                            title="Add to Wishlist">
+                        <i class="fa-regular fa-heart"></i>
+                    </button>
+                    </div>
+                </div>
+                `;
+            });
+
+        } catch (error) {
+            console.error(error);
+            suggestionGrid.innerHTML = "<p class='text-danger'>Error loading suggestions.</p>";
+        }
+    }
+
+
+    // --- 👇 Popular Books Slider (Carousel) Logic 👇 ---
+    let popularCurrentSlide = 0;
+    let popularMaxSlides = 0;
+    let autoSlideInterval;
+
+    async function loadPopularBooks() {
+        const track = document.getElementById('popularTrack');
+        const loading = document.getElementById('popularLoading');
+        const nav = document.getElementById('carouselNav');
+
+        try {
+            const response = await fetch('/api/popular-books');
+            const data = await response.json();
+            
+            loading.style.display = 'none';
+
+            if (!data.books || data.books.length === 0) {
+                track.innerHTML = '<p class="text-muted" style="width: 100%; text-align: center;">No popular books yet.</p>';
+                return;
+            }
+
+            nav.style.display = 'flex';
+            track.innerHTML = ''; 
+            
+            data.books.forEach(book => {
+                // ඔබගේ කලින් තිබූ createBookCard function එකම භාවිතා කරයි
+                track.innerHTML += createBookCard(book); 
+            });
+
+            // Slide වීමට අවශ්‍ය වාර ගණන තීරණය කිරීම
+            calculateMaxSlides(data.books.length);
+            
+            window.addEventListener('resize', () => calculateMaxSlides(data.books.length));
+
+            // තත්පර 5න් 5ට ස්වයංක්‍රීයව (Auto) Slide වීම
+            autoSlideInterval = setInterval(() => {
+                slidePopular('next');
+            }, 5000);
+
+        } catch (error) {
+            console.error('Error loading popular books:', error);
+            loading.innerHTML = '<p class="text-danger" style="width: 100%; text-align: center;">Failed to load popular books.</p>';
+        }
+    }
+
+    function calculateMaxSlides(totalCards) {
+        let itemsPerView = 4;
+        if(window.innerWidth <= 992) itemsPerView = 3;
+        if(window.innerWidth <= 768) itemsPerView = 2;
+        if(window.innerWidth <= 480) itemsPerView = 1;
+
+        popularMaxSlides = Math.ceil(totalCards / itemsPerView) - 1;
+        if(popularMaxSlides < 0) popularMaxSlides = 0;
+    }
+
+    function slidePopular(direction) {
+        const track = document.getElementById('popularTrack');
+        
+        if (direction === 'next') {
+            popularCurrentSlide++;
+            if (popularCurrentSlide > popularMaxSlides) popularCurrentSlide = 0; // මුලට යාම
+        } else {
+            popularCurrentSlide--;
+            if (popularCurrentSlide < 0) popularCurrentSlide = popularMaxSlides; // අගට යාම
+        }
+
+        // 100% කින් වමට තල්ලු කිරීම සහ Gap එක (20px) බැලන්ස් කිරීම
+        track.style.transform = `translateX(calc(-${popularCurrentSlide * 100}% - ${popularCurrentSlide * 20}px))`;
+        
+        // පරිශීලකයා බොත්තමක් එබුවොත් Auto Slide වීම නැවත මුල සිට ගණනය කිරීමට
+        clearInterval(autoSlideInterval);
+        autoSlideInterval = setInterval(() => { slidePopular('next'); }, 5000);
+    }
+
+
+
+    // --- 👇 Trending Categories Logic 👇 ---
+    // --- 👇 Trending Categories Carousel Logic 👇 ---
+    let categoryCurrentSlide = 0;
+    let categoryMaxSlides = 0;
+    let categoryAutoSlideInterval;
+
+    async function loadTrendingCategories() {
+        const track = document.getElementById('categoryTrack');
+        const loading = document.getElementById('categoriesLoading');
+        const nav = document.getElementById('categoryNav');
+
+        try {
+            const response = await fetch('/api/popular-categories');
+            const data = await response.json();
+            
+            loading.style.display = 'none';
+
+            if (!data.categories || data.categories.length === 0) {
+                track.innerHTML = '<p class="text-muted text-center w-100">No categories found.</p>';
+                return;
+            }
+
+            nav.style.display = 'flex';
+            track.innerHTML = ''; 
+            
+            const colors = ['#f43f5e', '#a8a29e', '#0ea5e9', '#eab308', '#10b981', '#d97706', '#ec4899', '#8b5cf6'];
+
+            data.categories.forEach((cat, index) => {
+                const color = colors[index % colors.length];
+                
+                const catCard = `
+                    <div class="cat-card glass-card" style="cursor: pointer;" onclick="window.location.href='/category/${cat._id}'">
+                        <i class="${cat.icon || 'fa-solid fa-folder'}" style="color: ${color};"></i>
+                        <span>${cat.name}</span>
+                    </div>
+                `;
+                track.innerHTML += catCard;
+            });
+
+            // Slide වීමට අවශ්‍ය වාර ගණන තීරණය කිරීම
+            calculateCategoryMaxSlides(data.categories.length);
+            
+            window.addEventListener('resize', () => calculateCategoryMaxSlides(data.categories.length));
+
+            // තත්පර 6න් 6ට ස්වයංක්‍රීයව (Auto) Slide වීම (පොත් slider එකට වඩා තත්පර 1ක් වෙනස් කර ඇත)
+            categoryAutoSlideInterval = setInterval(() => {
+                slideCategories('next');
+            }, 6000);
+
+        } catch (error) {
+            console.error('Error loading categories:', error);
+            loading.innerHTML = '<p class="text-danger text-center w-100">Failed to load categories.</p>';
+        }
+    }
+
+    function calculateCategoryMaxSlides(totalCards) {
+        let itemsPerView = 4;
+        if(window.innerWidth <= 992) itemsPerView = 3;
+        if(window.innerWidth <= 768) itemsPerView = 2;
+        if(window.innerWidth <= 480) itemsPerView = 1;
+
+        categoryMaxSlides = Math.ceil(totalCards / itemsPerView) - 1;
+        if(categoryMaxSlides < 0) categoryMaxSlides = 0;
+    }
+
+    function slideCategories(direction) {
+        const track = document.getElementById('categoryTrack');
+        
+        if (direction === 'next') {
+            categoryCurrentSlide++;
+            if (categoryCurrentSlide > categoryMaxSlides) categoryCurrentSlide = 0; 
+        } else {
+            categoryCurrentSlide--;
+            if (categoryCurrentSlide < 0) categoryCurrentSlide = categoryMaxSlides; 
+        }
+
+        track.style.transform = `translateX(calc(-${categoryCurrentSlide * 100}% - ${categoryCurrentSlide * 20}px))`;
+        
+        clearInterval(categoryAutoSlideInterval);
+        categoryAutoSlideInterval = setInterval(() => { slideCategories('next'); }, 6000);
+    }
+
+
+</script>
+
+{% endblock %}

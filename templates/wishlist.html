@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero" style="min-height: 40vh;">
+    <div class="hero-content">
+        <h1>My <span class="gradient-text">Wishlist.</span></h1>
+        <p class="hero-desc">Your curated collection of future reads.</p>
+    </div>
+</section>
+
+<section class="section-container">
+    <div class="section-header">
+        <h3>Saved Books ❤️</h3>
+        <div class="line-decoration"></div>
+    </div>
+
+    <div class="books-grid" id="wishlistGrid">
+        <div class="text-center" style="width: 100%;">Loading your collection...</div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', loadWishlist);
+
+    async function loadWishlist() {
+        const grid = document.getElementById('wishlistGrid');
+        
+        try {
+            // API මාර්ගය '/api/wishlist' විය යුතුය
+            const response = await fetch('/api/wishlist');
+            const data = await response.json();
+            
+            grid.innerHTML = '';
+
+            if (!data.books || data.books.length === 0) {
+                grid.innerHTML = `
+                    <div style="text-align: center; width: 100%; padding: 50px;">
+                        <h3>Your wishlist is empty 🍂</h3>
+                        <p>Go back to the library and add some books!</p>
+                        <a href="/" class="btn-glass-pill" style="margin-top:20px; display:inline-block;">Explore Books</a>
+                    </div>`;
+                return;
+            }
+
+            data.books.forEach(book => {
+                grid.innerHTML += createBookCard(book);
+            });
+
+        } catch (error) {
+            console.error('Error:', error);
+            grid.innerHTML = '<p class="text-danger">Failed to load wishlist.</p>';
+        }
+    }
+
+    function createBookCard(book) {
+        const bookId = book.id || book._id;
+        const imgUrl = book.thumbnail || "https://placehold.co/400x600/1e1e2e/ffffff?text=No+Cover";
+        
+        return `
+            <div class="book-card glass-card" onclick="window.location.href='/book/${bookId}'" style="cursor: pointer;">
+                <div class="book-cover-container">
+                    <img src="${imgUrl}" alt="${book.title}" class="book-cover-img">
+                </div>
+                
+                <div class="book-info">
+                    <h4 class="book-title">${book.title}</h4>
+                    <p class="book-author">by ${book.authors || 'Unknown'}</p>
+                </div>
+
+                <div class="book-actions">
+                    <button class="action-btn wishlist-btn active" 
+                            onclick="event.stopPropagation(); removeFromWishlist('${bookId}', this)" 
+                            title="Remove from Wishlist" style="color: #ff6b6b;">
+                        <i class="fa-solid fa-heart"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    async function removeFromWishlist(bookId, btnElement) {
+        if(!confirm("Remove this book from your wishlist?")) return;
+
+        try {
+            // API මාර්ගය '/api/wishlist/toggle' විය යුතුය
+            const response = await fetch('/api/wishlist/toggle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ book_id: bookId })
+            });
+            
+            const data = await response.json();
+            if (data.action === 'removed') {
+                const card = btnElement.closest('.book-card');
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.9)';
+                setTimeout(() => card.remove(), 300);
+                
+                // කාඩ් එක ඉවත් කළ පසු ලිස්ට් එක හිස් දැයි බැලීමට (Optional)
+                const grid = document.getElementById('wishlistGrid');
+                if (grid.children.length <= 1) { // 1 because we are about to remove one
+                     setTimeout(loadWishlist, 300); // Reload empty state
+                }
+            }
+        } catch (error) {
+            console.error('Error removing:', error);
+            alert("Failed to remove book.");
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<main class="container" style="min-height: 80vh; padding-top: 40px;">
+    
+    <div class="section-header" style="text-align: center; margin-bottom: 40px; margin-left: 120px;">
+        <h1 style="color: white; font-size: 2.5rem; margin-bottom: 10px;">
+            <i class="{{ category.icon }}" style="color: #a6e3a1; margin-right: 15px;"></i>
+            {{ category.name }} Books
+        </h1>
+    </div>
+
+    <section class="section-container" style="padding-top: 10px;">
+        <div class="books-grid">
+            {% if books %}
+                {% for book in books %}
+                
+                <div class="book-card glass-card" style="cursor: pointer;" onclick="window.location.href='/book/{{ book._id }}'">
+                    
+                    <div class="book-cover-container">
+                        {% if book.cover_image %}
+                            <img src="/static/uploads/books/covers/{{ book.cover_image }}" alt="{{ book.title }}" class="book-cover-img">
+                        {% else %}
+                            <img src="https://placehold.co/400x600/1e1e2e/ffffff?text=No+Cover" alt="No Cover" class="book-cover-img">
+                        {% endif %}
+                        <div class="overlay"></div>
+                    </div>
+                    
+                    <div class="book-info">
+                        <h4 class="book-title">{{ book.title }}</h4>
+                        <p class="book-author">
+                            Published: <span style="color: #a6e3a1;">{{ book.published_year }}</span>
+                        </p>
+                    </div>
+                    
+                    <div class="book-actions">
+                        <button class="action-btn wishlist-btn" 
+                                onclick="event.stopPropagation(); alert('Wishlist logic goes here!')" 
+                                title="Add to Wishlist">
+                            <i class="fa-regular fa-heart"></i>
+                        </button>
+                    </div>
+
+                </div>
+
+                {% endfor %}
+            {% else %}
+                <div style="text-align: center; width: 100%; padding: 60px 20px;">
+                    <i class="fa-solid fa-book-open-reader" style="font-size: 4rem; color: #45475a; margin-bottom: 25px;"></i>
+                    <h3 style="color: #cdd6f4; margin-bottom: 15px;">No books found in this category yet.</h3>
+                    <p style="color: #a6adc8; margin-bottom: 25px;">Check back later for exciting new reads!</p>
+                    <a href="/" class="btn-glass-pill" style="display: inline-block;">Explore Other Books</a>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+</main>
+
+{% endblock %}

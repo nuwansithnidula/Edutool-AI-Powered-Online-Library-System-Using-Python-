@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Librojot - User Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=2">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="toast-container" id="toastContainer">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="toast-card glass-toast {{ category }}" role="alert">
+                        <div class="toast-icon">
+                            {% if category == 'success' %}
+                                <i class="fa-solid fa-circle-check"></i>
+                            {% elif category == 'error' or category == 'danger' %}
+                                <i class="fa-solid fa-circle-xmark"></i>
+                            {% elif category == 'warning' %}
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            {% else %}
+                                <i class="fa-solid fa-circle-info"></i>
+                            {% endif %}
+                        </div>
+                        <div class="toast-content">
+                            <p class="toast-message">{{ message }}</p>
+                        </div>
+                        <button type="button" class="toast-close" onclick="closeToast(this)" title="Close">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                        <div class="toast-progress"></div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="ambient-light">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <header class="glass-header">
+        <div class="logo-container">
+            <div class="logo-circle"><i class="fa-solid fa-book-open"></i></div>
+            <a class="logo-text" href="{{ url_for('home') }}">Edutool</a>
+        </div>
+        <div class="header-actions">
+            <button class="theme-toggle" id="theme-btn"><i class="fa-regular fa-sun"></i></button>
+            <a href="{{ url_for('auth_bp.logout') }}"><button class="btn-glass">Logout</button></a>
+        </div>
+    </header>
+
+    <main class="dashboard-container">
+        
+        <aside class="dash-sidebar glass-card">
+            <div class="sidebar-header">
+                <h2>LibroJet</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active" onclick="switchTab('details')">
+                        <i class="fa-regular fa-user"></i> Personal Details
+                    </li>
+                    <li onclick="switchTab('wishlist')">
+                        <i class="fa-regular fa-heart"></i> Wishlist
+                    </li>
+                    <li onclick="switchTab('history')">
+                        <i class="fa-solid fa-clock-rotate-left"></i> History
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <section class="dash-content glass-card">
+            
+            <div id="details-tab" class="tab-content active">
+                <div class="tab-header">
+                    <h3>Personal Details</h3>
+                    <div class="user-badge">
+                        <i class="fa-solid fa-user-astronaut"></i>
+                    </div>
+                </div>
+
+                <div class="profile-grid">
+                    <div class="photo-section">
+                        <div class="photo-wrapper" id="photo-wrapper">
+                            <img src="{{ current_user.profile_image }}?t={{ range(1, 100000) | random }}" id="profile-preview" alt="Profile Photo">
+                            
+                            <div class="photo-overlay">
+                                <i class="fa-solid fa-camera"></i>
+                            </div>
+                            <input type="file" id="profile-upload" accept="image/*" style="display: none;">
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <form id="profile-form">
+                            <div class="form-group-row">
+                                <div class="dash-input-group">
+                                    <label>First name</label>
+                                    <input type="text" id="fname" name="first_name" value="{{ current_user.fname }}" readonly class="editable-input">
+                                    <i class="fa-solid fa-pen input-icon"></i>
+                                </div>
+                            </div>
+
+                            <div class="form-group-row">
+                                <div class="dash-input-group">
+                                    <label>Last name</label>
+                                    <input type="text" id="lname" name="last_name" value="{{ current_user.lname }}" readonly class="editable-input">
+                                    <i class="fa-solid fa-pen input-icon"></i>
+                                </div>
+                            </div>
+
+                            <div class="form-group-row">
+                                <div class="dash-input-group">
+                                    <label>Birthday</label>
+                                    <input type="date" id="dob" name="birthday" 
+                                        value="{{ (current_user.dob|string)[:10] }}" 
+                                        readonly class="editable-input">
+                                </div>
+                            </div>
+
+                            <div class="form-group-row">
+                                <div class="dash-input-group disabled-group">
+                                    <label>Email</label>
+                                    <input type="email" id="email" value="{{ current_user.email }}" disabled>
+                                    <i class="fa-solid fa-lock input-icon"></i>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="action-footer">
+                    <button id="update-btn" class="btn-neon hidden">Update Profile</button>
+                </div>
+            </div>
+
+            <div id="wishlist-tab" class="tab-content">
+                <div class="tab-header">
+                    <h3>My Wishlist</h3>
+                    <div id="wishlist-loading" style="display: none; color: var(--text-muted);">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i> Loading...
+                    </div>
+                </div>
+
+                <div class="wishlist-grid-container" id="wishlist-container">
+                    </div>
+
+                <div id="wishlist-empty" class="empty-state-msg hidden">
+                    <h3>Your wishlist is empty 🍂</h3>
+                    <p>Go add some books to your collection!</p>
+                    <a href="/" class="btn-glass-pill" style="margin-top: 15px; display: inline-block;">Explore</a>
+                </div>
+            </div>
+
+            <div id="history-tab" class="tab-content">
+                <div class="tab-header">
+                    <h3>Reading History</h3>
+                    <div id="history-loading" style="display: none; color: var(--text-muted);">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i> Loading...
+                    </div>
+                </div>
+
+                <div class="wishlist-grid-container" id="history-container">
+                </div>
+
+                <div id="history-empty" class="empty-state-msg hidden">
+                    <h3>No reading history yet 📖</h3>
+                    <p>Start reading books to see them here.</p>
+                    <a href="/" class="btn-glass-pill" style="margin-top: 15px; display: inline-block;">Explore Books</a>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}?v=2"></script> 
+    <script src="{{ url_for('static', filename='js/profile.js') }}?v=2"></script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            loadHistory();
+        });
+
+        async function loadHistory() {
+            const container = document.getElementById('history-container');
+            const emptyState = document.getElementById('history-empty');
+            const loading = document.getElementById('history-loading');
+
+            loading.style.display = 'block';
+            
+            try {
+                const response = await fetch('/api/history');
+                const data = await response.json();
+                
+                loading.style.display = 'none';
+                container.innerHTML = '';
+
+                if (!data.books || data.books.length === 0) {
+                    emptyState.classList.remove('hidden');
+                    return;
+                }
+
+                emptyState.classList.add('hidden');
+
+                data.books.forEach(book => {
+                    // ID එක ලබා ගැනීම (Frontend සහ Backend ගැලපීමට)
+                    const bookId = book.id || book._id;
+                    const imgUrl = book.thumbnail || "https://placehold.co/120x160?text=No+Cover";
+                    
+                    // --- 👇 Wishlist Card Style එකම History එකට යෙදීම 👇 ---
+                    const cardHTML = `
+                        <div class="wishlist-card-horizontal" id="history-card-${bookId}">
+                            <div class="w-card-img">
+                                <img src="${imgUrl}" alt="${book.title}">
+                            </div>
+                            <div class="w-card-info">
+                                <h4 class="w-card-title">${book.title}</h4>
+                                <p class="w-card-author">By <span>${book.authors || 'Unknown'}</span></p>
+                                
+                                <button class="w-remove-btn" onclick="removeFromHistory('${bookId}')" title="Remove from History">
+                                   <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                            <a href="/read/${bookId}" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:1;" onclick="if(event.target.closest('button')) event.preventDefault();"></a>
+                        </div>
+                    `;
+                    container.innerHTML += cardHTML;
+                });
+
+            } catch (error) {
+                console.error('Error loading history:', error);
+                loading.style.display = 'none';
+                container.innerHTML = '<p class="text-danger">Failed to load history.</p>';
+            }
+        }
+
+        // --- 👇 History එකෙන් පොතක් මකා දැමීමේ Function එක 👇 ---
+        // --- 👇 වෙනස් කළ History මකා දැමීමේ Function එක 👇 ---
+        async function removeFromHistory(bookId) {
+            // පරණ confirm() කොටුව මෙතැනින් ඉවත් කර ඇත
+
+            try {
+                const response = await fetch('/api/history/remove', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ book_id: bookId })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // 👇 අලංකාර Toast පණිවිඩය 👇
+                    alert("Book successfully removed from history.");
+
+                    const card = document.getElementById(`history-card-${bookId}`);
+                    if (card) {
+                        card.style.opacity = '0';
+                        setTimeout(() => {
+                            card.remove();
+                            if (document.getElementById('history-container').children.length === 0) {
+                                document.getElementById('history-empty').classList.remove('hidden');
+                            }
+                        }, 300);
+                    }
+                } else {
+                    alert("Failed to remove from history.");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Failed to connect to the server.");
+            }
+        }
+
+    </script>
+</body>
+</html>

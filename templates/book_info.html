@@ -1,0 +1,388 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<input type="hidden" id="currentBookId" value="{{ book_id }}">
+<input type="hidden" id="isUserLoggedIn" value="{{ 'true' if current_user.is_authenticated else 'false' }}">
+<input type="hidden" id="currentUserId" value="{{ current_user.id if current_user.is_authenticated else '' }}">
+
+<div class="ambient-light">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+</div>
+
+<main class="container book-info-container" style="min-height: 80vh;">
+    
+    <div id="loadingState" style="text-align: center; padding-top: 50px;">
+        <h2 style="color: white;">Loading Book Details...</h2>
+    </div>
+
+    <div id="errorState" style="text-align: center; padding-top: 50px; display: none;">
+        <h2 style="color: #ff6b6b;">Book details could not be found.</h2>
+        <a href="/" class="btn-neon">Go Back Home</a>
+    </div>
+
+    <section class="book-hero-section" id="bookContent" style="display: none;">
+        <div class="book-cover-wrapper">
+            <img id="mainBookImage" src="" alt="Book Cover" class="main-book-cover">
+            <div class="cover-reflection"></div>
+        </div>
+
+        <div class="book-details-content">
+            <div class="title-row">
+                <h1 id="bookTitle"></h1>
+                <button class="large-heart" id="wishlistHeartBtn" title="Add to Wishlist">
+                    <i class="fa-regular fa-heart" id="wishlistHeartIcon"></i>
+                </button>
+            </div>
+            
+            <div class="author-info">
+                <div class="author-avatar-placeholder"><i class="fa-solid fa-user"></i></div>
+                <p><a href="#" class="author-link" id="bookAuthor"></a></p>
+                <span class="rating"><i class="fa-solid fa-star"></i> 4.8</span>
+            </div>
+
+            <div class="tags-container" id="bookCategories">
+            </div>
+
+            <div class="description-box glass-card">
+                <h3>Synopsis</h3>
+                <p id="bookDescription">
+                    Loading description...
+                </p>
+            </div>
+
+            <div class="action-buttons-row">
+                <button id="readNowBtn" class="btn-neon btn-lg"><i class="fa-solid fa-book-open"></i> Read Now</button>
+                <button id="downloadBtn" class="btn-glass btn-lg"><i class="fa-solid fa-download"></i> Download</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="comments-section" style="margin-top: 60px;">
+        <div class="section-header">
+            <h3>Reviews & Comments 💬</h3>
+            <div class="line-decoration"></div>
+        </div>
+
+        <div class="comments-wrapper">
+            <div class="add-comment-box glass-card">
+                {% if current_user.is_authenticated %}
+                    <textarea id="newCommentText" placeholder="Share your thoughts about this book..."></textarea>
+                    <div style="text-align: right; margin-top: 15px;">
+                        <button id="postCommentBtn" class="btn-neon" onclick="postComment()">Post Comment</button>
+                    </div>
+                {% else %}
+                    <div style="text-align: center; padding: 20px;">
+                        <p style="color: var(--text-muted); margin-bottom: 10px;">Please login to share your thoughts.</p>
+                        <a href="{{ url_for('auth_bp.login') }}" class="btn-glass-pill">Login to Comment</a>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div id="commentsListContainer">
+                <div class="text-center" style="color: var(--text-muted);"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading comments...</div>
+            </div>
+        </div>
+    </section>
+
+    <hr class="divider glow-line">
+
+    <section id="recSection" style="display: none;">
+        <div class="section-header">
+            <h3>You may also like</h3>
+            <div class="line-decoration"></div>
+        </div>
+        
+        <div class="books-grid" id="similarBooksGrid">
+        </div>
+    </section>
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const bookId = document.getElementById('currentBookId').value;
+        const API_BASE = "/api/books"; // app.py එකේ prefix එක අනුව
+
+        const loadingState = document.getElementById('loadingState');
+        const errorState = document.getElementById('errorState');
+        const bookContent = document.getElementById('bookContent');
+        
+        const heartBtn = document.getElementById("wishlistHeartBtn");
+        const heartIcon = document.getElementById("wishlistHeartIcon");
+
+        try {
+            // 1. පොතේ විස්තර Fetch කිරීම
+            const response = await fetch(`${API_BASE}/${bookId}`);
+            if (!response.ok) throw new Error("Book not found");
+
+            const book = await response.json();
+
+            // UI යාවත්කාලීන කිරීම
+            document.getElementById('bookTitle').innerText = book.title;
+            const authorLink = document.getElementById('bookAuthor');
+            authorLink.innerText = `By ${book.authors || "Unknown Author"}`;
+            authorLink.href = `/author/${encodeURIComponent(book.authors || '')}`;
+            
+            document.getElementById('bookDescription').innerText = book.description || "No description available.";
+            
+            // Read Now Button Logic
+            const readNowBtn = document.getElementById('readNowBtn');
+            if(readNowBtn) {
+                readNowBtn.onclick = () => {
+                    const isLoggedIn = document.getElementById('isUserLoggedIn').value === 'true';
+                    
+                    if (!isLoggedIn) {
+                        alert("Please login to read this book.");
+                        window.location.href = '/auth/login';
+                    } else {
+                        window.location.href = `/read/${bookId}`;
+                    }
+                };
+            }
+
+            // Download Button Logic
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            if (book.pdf_file) {
+                downloadBtn.onclick = () => {
+                    const isLoggedIn = document.getElementById('isUserLoggedIn').value === 'true';
+                    
+                    if (!isLoggedIn) {
+                        alert("Please login to download this book.");
+                        window.location.href = '/auth/login';
+                    } else {
+                        const link = document.createElement('a');
+                        link.href = `/static/uploads/books/pdfs/${book.pdf_file}`;
+                        link.download = `${book.title}.pdf`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    }
+                };
+            } else {
+                downloadBtn.style.opacity = '0.5';
+                downloadBtn.style.cursor = 'not-allowed';
+                downloadBtn.title = 'PDF not available';
+                downloadBtn.onclick = () => {
+                    alert("Sorry, the PDF for this book is not available for download.");
+                };
+            }
+
+            document.getElementById('mainBookImage').src = book.thumbnail || "https://placehold.co/400x600/1e1e2e/ffffff?text=No+Cover";
+
+            // Categories පෙන්වීම
+            const tagsContainer = document.getElementById('bookCategories');
+            tagsContainer.innerHTML = ''; 
+
+            if (book.categories && book.categories.length > 0) {
+                book.categories.forEach(category => {
+                    tagsContainer.innerHTML += `<span class="tag">${category}</span>`;
+                });
+            } else {
+                tagsContainer.innerHTML = `<span class="tag">Uncategorized</span>`;
+            }
+
+            // Loading ඉවත් කර Content පෙන්වීම
+            loadingState.style.display = 'none';
+            bookContent.style.display = 'flex'; 
+
+            // පරිශීලකයා ලොග් වී ඇත්දැයි බැලීම
+            const isLoggedIn = document.getElementById('isUserLoggedIn').value === 'true';
+
+            // 2. Wishlist Status පරීක්ෂා කිරීම (ලොග් වී ඇත්නම් පමණක් මෙය ධාවනය වේ)
+            if (isLoggedIn) {
+                try {
+                    const st = await fetch(`/api/wishlist/contains/${bookId}`);
+                    if (st.ok) {
+                        const sdata = await st.json();
+                        if (sdata.in_wishlist) {
+                            heartIcon.classList.replace("fa-regular", "fa-solid");
+                            heartBtn.classList.add("active");
+                        }
+                    }
+                } catch (e) { console.log("Wishlist check failed"); }
+            }
+
+            // 3. Wishlist Button Click Event (Toggle)
+            heartBtn.onclick = async (e) => {
+                e.preventDefault();
+                
+                // ලොග් වී නැත්නම් කෙලින්ම Login පිටුවට යවන්න
+                if (!isLoggedIn) {
+                    alert("Please login to use the wishlist! ❤️");
+                    window.location.href = "/auth/login"; 
+                    return; 
+                }
+
+                try {
+                    const res = await fetch("/api/wishlist/toggle", {
+                        method: "POST",
+                        headers: {"Content-Type": "application/json"},
+                        body: JSON.stringify({ book_id: bookId })
+                    });
+                    
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.in_wishlist) {
+                            heartIcon.classList.replace("fa-regular", "fa-solid");
+                            heartBtn.classList.add("active");
+                        } else {
+                            heartIcon.classList.replace("fa-solid", "fa-regular");
+                            heartBtn.classList.remove("active");
+                        }
+                    }
+                } catch (err) {
+                    console.error("Error toggling wishlist:", err);
+                }
+            };
+
+            // 4. සමාන පොත් පෙන්වීම (Recommendations)
+            loadSimilarBooks(book.title);
+
+        } catch (error) {
+            console.error("Error:", error);
+            loadingState.style.display = 'none';
+            errorState.style.display = 'block';
+        }
+    });
+
+    // Similar Books function
+    async function loadSimilarBooks(title) {
+        const grid = document.getElementById('similarBooksGrid');
+        try {
+            const response = await fetch(`/api/books/suggest`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title: title })
+            });
+            loadComments();
+            const data = await response.json();
+            
+            if (data.suggestions && data.suggestions.length > 0) {
+                document.getElementById('recSection').style.display = 'block';
+                grid.innerHTML = data.suggestions.slice(0, 4).map(book => `
+                    <div class="book-card glass-card" onclick="window.location.href='/book/${book.id || book._id}'">
+                        <div class="book-cover-container">
+                            <img src="${book.thumbnail || 'https://placehold.co/400x600/1e1e2e/ffffff?text=No+Cover'}" class="book-cover-img">
+                        </div>
+                        <div class="book-info">
+                            <h4 class="book-title">${book.title}</h4>
+                            <p class="book-author">by ${book.authors || 'Unknown'}</p>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        } catch (e) { console.log("Recs failed", e); }
+    }
+
+    // --- Comments Logic ---
+    async function loadComments() {
+        const bookId = document.getElementById('currentBookId').value;
+        const currentUserId = document.getElementById('currentUserId').value;
+        const container = document.getElementById('commentsListContainer');
+
+        try {
+            const response = await fetch(`/api/comments/${bookId}`);
+            const data = await response.json();
+
+            if (!data.comments || data.comments.length === 0) {
+                container.innerHTML = '<p class="text-center" style="color: var(--text-muted);">No comments yet. Be the first to share your thoughts!</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            
+            data.comments.forEach(c => {
+                const isOwner = currentUserId === c.user_id;
+                const actionBtns = isOwner ? `
+                    <div class="comment-actions">
+                        <button onclick="editComment('${c._id}', '${c.text.replace(/'/g, "\\'")}')" title="Edit"><i class="fa-solid fa-pen"></i> Edit</button>
+                        <button onclick="deleteComment('${c._id}')" title="Delete" style="color: #ff6b6b;"><i class="fa-solid fa-trash"></i> Delete</button>
+                    </div>
+                ` : '';
+
+                const userImg = c.user_image || "https://placehold.co/100x100?text=U";
+
+                const commentHTML = `
+                    <div class="comment-card glass-card" id="comment-${c._id}">
+                        <div class="comment-avatar">
+                            <img src="${userImg}" alt="User">
+                        </div>
+                        <div class="comment-content">
+                            <div class="comment-header">
+                                <span class="comment-author">${c.user_name}</span>
+                                <span class="comment-date">${c.created_at}</span>
+                            </div>
+                            <div class="comment-text" id="text-${c._id}">${c.text}</div>
+                            ${actionBtns}
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += commentHTML;
+            });
+        } catch (error) {
+            console.error("Failed to load comments:", error);
+            container.innerHTML = '<p class="text-danger text-center">Failed to load comments.</p>';
+        }
+    }
+
+    async function postComment() {
+        const textInput = document.getElementById('newCommentText');
+        const text = textInput.value.trim();
+        const bookId = document.getElementById('currentBookId').value;
+
+        if (!text) { alert("Please write something first."); return; }
+
+        try {
+            const res = await fetch('/api/comments/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ book_id: bookId, text: text })
+            });
+
+            if (res.ok) {
+                textInput.value = ''; 
+                loadComments(); 
+            } else {
+                alert("Failed to post comment.");
+            }
+        } catch (error) { console.error(error); }
+    }
+
+    async function deleteComment(commentId) {
+        if (!confirm("Are you sure you want to delete this comment?")) return;
+        try {
+            const res = await fetch(`/api/comments/delete/${commentId}`, { method: 'DELETE' });
+            if (res.ok) { loadComments(); }
+        } catch (error) { console.error(error); }
+    }
+
+    function editComment(commentId, oldText) {
+        const textDiv = document.getElementById(`text-${commentId}`);
+        textDiv.innerHTML = `
+            <textarea id="editInput-${commentId}" class="edit-comment-box">${oldText}</textarea>
+            <div style="margin-top: 10px;">
+                <button class="btn-glass" onclick="saveEdit('${commentId}')" style="padding: 5px 15px; font-size: 0.9rem;">Save</button>
+                <button class="btn-glass" onclick="loadComments()" style="padding: 5px 15px; font-size: 0.9rem; margin-left: 10px;">Cancel</button>
+            </div>
+        `;
+    }
+
+    async function saveEdit(commentId) {
+        const newText = document.getElementById(`editInput-${commentId}`).value.trim();
+        if (!newText) { alert("Comment cannot be empty."); return; }
+
+        try {
+            const res = await fetch(`/api/comments/edit/${commentId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: newText })
+            });
+            if (res.ok) { loadComments(); }
+        } catch (error) { console.error(error); }
+    }
+</script>
+
+{% endblock %}

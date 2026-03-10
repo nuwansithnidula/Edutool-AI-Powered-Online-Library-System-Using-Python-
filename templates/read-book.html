@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading Mode - {{ book_title }}</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+</head>
+<body class="reading-mode">
+
+    <div id="libro-preloader">
+        <div class="preloader-content">
+            <div class="preloader-icon">
+                <i class="fa-solid fa-book-open"></i>
+            </div>
+            <h2 class="preloader-text">Edu<span class="gradient-text">tool</span></h2>
+            <div class="loading-bar-container">
+                <div class="loading-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <input type="hidden" id="pdfUrlInput" value="{{ pdf_url }}">
+
+    <div class="ambient-light">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <header class="glass-header reading-header">
+        <div class="logo-container">
+            <a href="javascript:history.back()" class="logo-circle"><i class="fa-solid fa-arrow-left"></i></a>
+            <span class="logo-text">Back to Library</span>
+        </div>
+        
+        <div class="header-actions">
+            <button class="theme-toggle" id="theme-btn">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="flipbook-section">
+        <div class="flipbook-viewport" id="viewport">
+            <div class="flipbook" id="flipbook">
+                </div>
+        </div>
+
+        <div class="reading-controls glass-card">
+            <button id="prev-btn" class="control-btn" title="Previous Page">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            
+            <span id="page-info">Loading...</span>
+            
+            <button id="next-btn" class="control-btn" title="Next Page">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+            
+            <div class="divider-vertical"></div>
+            
+            <button id="zoom-out" class="control-btn" title="Zoom Out">
+                <i class="fa-solid fa-minus"></i>
+            </button>
+            <span id="zoom-level">100%</span>
+            <button id="zoom-in" class="control-btn" title="Zoom In">
+                <i class="fa-solid fa-plus"></i>
+            </button>
+            
+            <div class="divider-vertical"></div>
+            
+            <button id="fullscreen-btn" class="control-btn" title="Fullscreen Mode">
+                <i class="fa-solid fa-expand"></i>
+            </button>
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/flipbook-script.js') }}"></script>
+</body>
+</html>

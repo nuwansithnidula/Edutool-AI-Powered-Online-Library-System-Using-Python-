@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+
+<main class="categories-page-container">
+    <section class="category-section">
+        <h1 class="page-title">Explore Categories</h1>
+        
+        <div class="category-grid">
+            
+            {% if categories %}
+                {% for cat in categories %}
+                <div class="cat-card glass-card" style="cursor: pointer;" onclick="window.location.href='/category/{{ cat._id }}'">
+                    
+                    <i class="{{ cat.icon }}" style="color: {{ loop.cycle('#f43f5e', '#a8a29e', '#0ea5e9', '#eab308', '#10b981', '#d97706', '#ec4899', '#8b5cf6', '#6366f1', '#64748b', '#22c55e', '#f59e0b') }};"></i>
+                    
+                    <span>{{ cat.name }}</span>
+                    
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="text-align: center; width: 100%; color: #aaa;">No categories found. Please add them from the Admin Dashboard.</p>
+            {% endif %}
+
+        </div>
+    </section>
+</main>
+
+{% endblock %}
